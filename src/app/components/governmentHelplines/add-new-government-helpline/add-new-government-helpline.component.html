@@ -1,0 +1,52 @@
+<form [formGroup]="govtHelplineForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
+    <div class="card-body">
+      <div class="d-md-flex align-items-center justify-content-between mb-3">
+        <div class="text-center text-md-start mb-2 mb-md-0">
+          <h4>New Government Helpline</h4>
+        </div>
+        <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-governmentHelplines']">Manage Government Helplines</button>
+      </div>
+  
+      <div class="row g-2">
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="helplineServices" formControlName="helplineServices" placeholder="John Doe" required>
+          <label for="helplineServices">Helpline Service <span class="text-danger">*</span></label>
+          <div *ngIf="govtHelplineForm.get('helplineServices')?.touched && govtHelplineForm.get('helplineServices')?.invalid" class="text-danger">
+            Helpline Service is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="number" class="form-control" id="contact" formControlName="contact" placeholder="Govt./Private" required>
+          <label for="contact">Contact Number <span class="text-danger">*</span></label>
+          <div *ngIf="govtHelplineForm.get('contact')?.touched && govtHelplineForm.get('contact')?.invalid" class="text-danger">
+            Contact Number is required.
+          </div>
+        </div>
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="number" class="form-control" id="govtBody" formControlName="govtBody" placeholder="Govt./Private" required>
+          <label for="govtBody">Government Body <span class="text-danger">*</span></label>
+          <div *ngIf="govtHelplineForm.get('govtBody')?.touched && govtHelplineForm.get('govtBody')?.invalid" class="text-danger">
+            Government Body is required.
+          </div>
+        </div>
+  
+  
+  
+  
+        <div class="form-floating col-md-12 col-12 mb-3">
+          <textarea class="form-control" id="remarks" formControlName="remarks" placeholder="Leave a remark here" maxlength="255"></textarea>
+          <label for="remarks">Remarks</label>
+        </div>
+  
+  
+        <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="govtHelplineForm.invalid">
+          Submit
+        </button>
+      </div>
+    </div>
+  </form>
+  

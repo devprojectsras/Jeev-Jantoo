@@ -1,0 +1,112 @@
+<form [formGroup]="clinicForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
+  <div class="card-body">
+    <div class="d-md-flex align-items-center justify-content-between mb-3">
+      <div class="text-center text-md-start mb-2 mb-md-0">
+        <h4>New Veterinary Clinic</h4>
+      </div>
+      <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-veterinaryClinics']">Manage Veterinary Clinics</button>
+    </div>
+
+    <div class="row g-2">
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="name" formControlName="name" placeholder="John Doe" required>
+        <label for="name">Name <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('name')?.touched && clinicForm.get('name')?.invalid" class="text-danger">
+          Name is required.
+        </div>
+      </div>
+
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="type" formControlName="type" placeholder="Govt./Private" required>
+        <label for="type">Type <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('type')?.touched && clinicForm.get('type')?.invalid" class="text-danger">
+          Type is required.
+        </div>
+      </div>
+
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <select class="form-select" id="state" formControlName="state" required>
+          <option value="" disabled>Select a state</option>
+          <option value="Madhya Pradesh">Madhya Pradesh</option>
+        </select>
+        <label for="state">State <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('state')?.touched && clinicForm.get('state')?.invalid" class="text-danger">
+          State is required.
+        </div>
+      </div>
+
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <select class="form-select" id="city" formControlName="city" required>
+          <option value="" disabled>Select a city</option>
+          <option value="Bhopal">Bhopal</option>
+          <option value="Indore">Indore</option>
+          <option value="Jabalpur">Jabalpur</option>
+          <option value="Gwalior">Gwalior</option>
+        </select>
+        <label for="city">City <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('city')?.touched && clinicForm.get('city')?.invalid" class="text-danger">
+          City is required.
+        </div>
+      </div>
+
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="area" formControlName="area" placeholder="Area/Landmark" required>
+        <label for="area">Area/Landmark <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('area')?.touched && clinicForm.get('area')?.invalid" class="text-danger">
+          Area is required.
+        </div>
+      </div>
+     <div class="form-floating col-md-6 col-12 mb-3 ">
+      <input type="text" class="form-control" id="pincode" formControlName="pincode" placeholder="462041" required>
+      <label for="pincode">Pincode <span class="text-danger">*</span></label>
+      <div *ngIf="clinicForm.get('pincode')?.touched && clinicForm.get('pincode')?.invalid" class="text-danger">
+        Pincode is required and must be a 6-digit number
+      </div>
+     </div>
+     <div class="form-floating col-md-6 col-12 mb-3 ">
+      <input type="text" class="form-control" id="contact" formControlName="contact" placeholder="7845129632/0755-478596" required>
+      <label for="contact">contact <span class="text-danger">*</span></label>
+      <div *ngIf="clinicForm.get('contact')?.touched && clinicForm.get('contact')?.invalid" class="text-danger">
+        Contact is required
+      </div>
+     </div>
+     <div class="form-floating col-md-6 col-12 mb-3 ">
+   
+     </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="time" class="form-control" id="timeFrom" formControlName="timeFrom" required>
+        <label for="timeFrom">Time From <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('timeFrom')?.touched && clinicForm.get('timeFrom')?.invalid" class="text-danger">
+          Time From is required.
+        </div>
+      </div>
+
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="time" class="form-control" id="timeTo" formControlName="timeTo" required>
+        <label for="timeTo">Time To <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('timeTo')?.touched && clinicForm.get('timeTo')?.invalid" class="text-danger">
+          Time To is required.
+        </div>
+      </div>
+
+
+      <div class="form-floating col-md-12 col-12 mb-3">
+        <textarea class="form-control" id="remarks" formControlName="remarks" placeholder="Leave a remark here" maxlength="255"></textarea>
+        <label for="remarks">Remarks</label>
+      </div>
+
+
+      <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="clinicForm.invalid">
+        Submit
+      </button>
+    </div>
+  </div>
+</form>
+

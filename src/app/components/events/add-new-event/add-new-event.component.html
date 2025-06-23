@@ -1,0 +1,100 @@
+<form [formGroup]="eventsForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
+    <div class="card-body">
+      <div class="d-md-flex align-items-center justify-content-between mb-3">
+        <div class="text-center text-md-start mb-2 mb-md-0">
+          <h4>New Event</h4>
+        </div>
+        <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-events']">Manage Events</button>
+      </div>
+  
+      <div class="row g-2">
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="name" formControlName="name" placeholder="John Doe" required>
+          <label for="name">Name <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('name')?.touched && eventsForm.get('name')?.invalid" class="text-danger">
+            Name is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="contactPerson" formControlName="contactPerson" placeholder="Govt./Private" required>
+          <label for="contactPerson">Contact Person <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('contactPerson')?.touched && eventsForm.get('contactPerson')?.invalid" class="text-danger">
+            Contact Person is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <select class="form-select" id="state" formControlName="state" required>
+            <option value="" disabled>Select a state</option>
+            <option value="Madhya Pradesh">Madhya Pradesh</option>
+          </select>
+          <label for="state">State <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('state')?.touched && eventsForm.get('state')?.invalid" class="text-danger">
+            State is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <select class="form-select" id="city" formControlName="city" required>
+            <option value="" disabled>Select a city</option>
+            <option value="Bhopal">Bhopal</option>
+            <option value="Indore">Indore</option>
+            <option value="Jabalpur">Jabalpur</option>
+            <option value="Gwalior">Gwalior</option>
+          </select>
+          <label for="city">City <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('city')?.touched && eventsForm.get('city')?.invalid" class="text-danger">
+            City is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="area" formControlName="area" placeholder="Area/Landmark" required>
+          <label for="area">Area/Landmark <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('area')?.touched && eventsForm.get('area')?.invalid" class="text-danger">
+            Area is required.
+          </div>
+        </div>
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="pincode" formControlName="pincode" placeholder="Area/Landmark" required>
+          <label for="pincode">Pincode <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('pincode')?.touched && eventsForm.get('pincode')?.invalid" class="text-danger">
+            Pincode is required and must be a 6-digit number
+
+          </div>
+        </div>
+
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="time" class="form-control" id="timeFrom" formControlName="timeFrom" required>
+          <label for="timeFrom">Time From <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('timeFrom')?.touched && eventsForm.get('timeFrom')?.invalid" class="text-danger">
+            Time From is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="time" class="form-control" id="timeTo" formControlName="timeTo" required>
+          <label for="timeTo">Time To <span class="text-danger">*</span></label>
+          <div *ngIf="eventsForm.get('timeTo')?.touched && eventsForm.get('timeTo')?.invalid" class="text-danger">
+            Time To is required.
+          </div>
+        </div>
+  
+  
+  
+  
+        <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="eventsForm.invalid">
+          Submit
+        </button>
+      </div>
+    </div>
+  </form>
+  

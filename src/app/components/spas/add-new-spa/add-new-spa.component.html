@@ -1,0 +1,98 @@
+<form [formGroup]="spasForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
+    <div class="card-body">
+      <div class="d-md-flex align-items-center justify-content-between mb-3">
+        <div class="text-center text-md-start mb-2 mb-md-0">
+          <h4>New Spa</h4>
+        </div>
+        <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-spas']">Manage Spa</button>
+      </div>
+  
+      <div class="row g-2">
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="name" formControlName="name" placeholder="John Doe" required>
+          <label for="name">Name <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('name')?.touched && spasForm.get('name')?.invalid" class="text-danger">
+            Name is required.
+          </div>
+        </div>
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="contact" formControlName="contact" placeholder="John Doe" required>
+          <label for="contact">Contact Number <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('contact')?.touched && spasForm.get('contact')?.invalid" class="text-danger">
+            Contact Number is required.
+          </div>
+        </div>
+  
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <select class="form-select" id="state" formControlName="state" required>
+            <option value="" disabled>Select a state</option>
+            <option value="Madhya Pradesh">Madhya Pradesh</option>
+          </select>
+          <label for="state">State <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('state')?.touched && spasForm.get('state')?.invalid" class="text-danger">
+            State is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <select class="form-select" id="city" formControlName="city" required>
+            <option value="" disabled>Select a city</option>
+            <option value="Bhopal">Bhopal</option>
+            <option value="Indore">Indore</option>
+            <option value="Jabalpur">Jabalpur</option>
+            <option value="Gwalior">Gwalior</option>
+          </select>
+          <label for="city">City <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('city')?.touched && spasForm.get('city')?.invalid" class="text-danger">
+            City is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="area" formControlName="area" placeholder="Area/Landmark" required>
+          <label for="area">Area/Landmark <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('area')?.touched && spasForm.get('area')?.invalid" class="text-danger">
+            Area is required.
+          </div>
+        </div>
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="text" class="form-control" id="pincode" formControlName="pincode" placeholder="Area/Landmark" required>
+          <label for="pincode">Pincode <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('pincode')?.touched && spasForm.get('pincode')?.invalid" class="text-danger">
+            Pincode is required and must be a 6-digit number
+          </div>
+        </div>
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="time" class="form-control" id="timeFrom" formControlName="timeFrom" required>
+          <label for="timeFrom">Time From <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('timeFrom')?.touched && spasForm.get('timeFrom')?.invalid" class="text-danger">
+            Time From is required.
+          </div>
+        </div>
+  
+  
+        <div class="form-floating col-md-6 col-12 mb-3">
+          <input type="time" class="form-control" id="timeTo" formControlName="timeTo" required>
+          <label for="timeTo">Time To <span class="text-danger">*</span></label>
+          <div *ngIf="spasForm.get('timeTo')?.touched && spasForm.get('timeTo')?.invalid" class="text-danger">
+            Time To is required.
+          </div>
+        </div>
+  
+  
+  
+  
+        <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="spasForm.invalid">
+          Submit
+        </button>
+      </div>
+    </div>
+  </form>
+  
