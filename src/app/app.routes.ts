@@ -24,17 +24,18 @@ import { AddNewSpaComponent } from './components/spas/add-new-spa/add-new-spa.co
 import { ManageGovernmentHelplinesComponent } from './components/governmentHelplines/manage-government-helplines/manage-government-helplines.component';
 import { ManageSpasComponent } from './components/spas/manage-spas/manage-spas.component';
 import { AddNewGovernmentHelplineComponent } from './components/governmentHelplines/add-new-government-helpline/add-new-government-helpline.component';
-
+import { AddNewPetAdoptionComponent } from './components/pet-adoption/add-new-pet-adoption/add-new-pet-adoption.component';
+import { ManageAdoptionComponent } from './components/pet-adoption/manage-pet-adoption/manage-pet-adoption.component';
 
 export const routes: Routes = [
   {
-    path: '', // Default route
+    path: '',
     component: PrimaryComponent,
-    canActivate: [authGuard], // Use AuthGuard to determine redirection
+    canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: LoginComponent, // Default to LoginComponent if not authenticated
+        component: LoginComponent,
       },
     ],
   },
@@ -58,222 +59,237 @@ export const routes: Routes = [
         component: DashboardComponent,
       },
     ],
-    
   },
   {
     path: 'add-new-ngo',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewNgoComponent, // The component for managing NGOs
+        component: AddNewNgoComponent,
       },
     ],
   },
   {
     path: 'manage-ngos',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageNgosComponent, // The component for managing NGOs
+        component: ManageNgosComponent,
       },
     ],
   },
-
   {
     path: 'add-new-veterinaryClinic',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewVeterinaryClinicComponent, // The component for managing NGOs
+        component: AddNewVeterinaryClinicComponent,
       },
     ],
   },
   {
     path: 'manage-veterinaryClinics',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageVeterinaryClinicsComponent, // The component for managing NGOs
+        component: ManageVeterinaryClinicsComponent,
       },
     ],
   },
-
   {
     path: 'add-new-event',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewEventComponent, // The component for managing NGOs
+        component: AddNewEventComponent,
       },
     ],
   },
   {
     path: 'manage-events',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageEventsComponent, // The component for managing NGOs
+        component: ManageEventsComponent,
       },
     ],
   },
-
   {
     path: 'add-new-ambulance',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewAmbulanceComponent, // The component for managing NGOs
+        component: AddNewAmbulanceComponent,
       },
     ],
   },
   {
     path: 'manage-ambulance',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageAmbulanceComponent, // The component for managing NGOs
+        component: ManageAmbulanceComponent,
       },
     ],
   },
-
   {
     path: 'add-new-boarding',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewBoardingComponent, // The component for managing NGOs
+        component: AddNewBoardingComponent,
       },
     ],
   },
   {
     path: 'manage-boardings',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageBoardingsComponent, // The component for managing NGOs
+        component: ManageBoardingsComponent,
       },
     ],
   },
-
   {
     path: 'add-new-abcs',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewAbcComponent, // The component for managing NGOs
+        component: AddNewAbcComponent,
       },
     ],
   },
   {
     path: 'manage-abcs',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageAbcsComponent, // The component for managing NGOs
+        component: ManageAbcsComponent,
       },
     ],
   },
-
   {
     path: 'add-new-spa',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewSpaComponent, // The component for managing NGOs
+        component: AddNewSpaComponent,
       },
     ],
   },
   {
     path: 'manage-spas',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageSpasComponent, // The component for managing NGOs
+        component: ManageSpasComponent,
       },
     ],
   },
-
   {
     path: 'add-new-governmentHelplines',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewGovernmentHelplineComponent, // The component for managing NGOs
+        component: AddNewGovernmentHelplineComponent,
       },
     ],
   },
   {
     path: 'manage-governmentHelplines',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageGovernmentHelplinesComponent, // The component for managing NGOs
+        component: ManageGovernmentHelplinesComponent,
       },
     ],
   },
   {
     path: 'add-new-user',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: AddNewUserComponent, // The component for managing NGOs
+        component: AddNewUserComponent,
       },
     ],
   },
   {
     path: 'manage-users',
-    component: SecondaryComponent, // Use the layout component
+    component: SecondaryComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        component: ManageUsersComponent, // The component for managing NGOs
+        component: ManageUsersComponent,
+      },
+      {
+        path: 'reset-password',
+        component: ResetPasswordComponent,
       },
     ],
   },
-  
- 
-  
-  { path: 'reset-password', component: ResetPasswordComponent },
-
-  
-
+  {
+    path: 'add-new-pet-adoption',
+    component: SecondaryComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        component: AddNewPetAdoptionComponent,
+      },
+    ],
+  },
+  {
+    path: 'manage-pet-adoption',
+    component: SecondaryComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        component: ManageAdoptionComponent,
+      },
+    ],
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+  },
   {
     path: '**',
-    redirectTo: '', // Redirect any undefined route to the root
+    redirectTo: '',
   },
 ];

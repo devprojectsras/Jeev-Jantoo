@@ -1,0 +1,99 @@
+<form [formGroup]="petAdoptionForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
+  <div class="card-body">
+    <div class="d-md-flex align-items-center justify-content-between mb-3">
+      <div class="text-center text-md-start mb-2 mb-md-0">
+        <h4>New Pet Adoption</h4>
+      </div>
+      <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-pet-adoption']">Manage Pet Adoptions</button>
+    </div>
+
+    <div class="row g-2">
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="petName" formControlName="petName" placeholder="Buddy" required>
+        <label for="petName">Pet Name <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('petName')?.touched && petAdoptionForm.get('petName')?.invalid" class="text-danger">
+          Pet Name is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <select class="form-select" id="species" formControlName="species" required>
+          <option value="" disabled>Select a species</option>
+          <option value="Dog">Dog</option>
+          <option value="Cat">Cat</option>
+          <option value="Other">Other</option>
+        </select>
+        <label for="species">Species <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('species')?.touched && petAdoptionForm.get('species')?.invalid" class="text-danger">
+          Species is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="breed" formControlName="breed" placeholder="Labrador" required>
+        <label for="breed">Breed <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('breed')?.touched && petAdoptionForm.get('breed')?.invalid" class="text-danger">
+          Breed is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="number" class="form-control" id="age" formControlName="age" placeholder="2" required>
+        <label for="age">Age (in years) <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('age')?.touched && petAdoptionForm.get('age')?.invalid" class="text-danger">
+          Age is required and must be a number.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <select class="form-select" id="gender" formControlName="gender" required>
+          <option value="" disabled>Select a gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+        <label for="gender">Gender <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('gender')?.touched && petAdoptionForm.get('gender')?.invalid" class="text-danger">
+          Gender is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <select class="form-select" id="healthStatus" formControlName="healthStatus" required>
+          <option value="" disabled>Select health status</option>
+          <option value="Healthy">Healthy</option>
+          <option value="Needs Treatment">Needs Treatment</option>
+          <option value="Vaccinated">Vaccinated</option>
+        </select>
+        <label for="healthStatus">Health Status <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('healthStatus')?.touched && petAdoptionForm.get('healthStatus')?.invalid" class="text-danger">
+          Health Status is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="contact" formControlName="contact" placeholder="7845129632" required>
+        <label for="contact">Contact <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('contact')?.touched && petAdoptionForm.get('contact')?.invalid" class="text-danger">
+          Contact is required and must be valid.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="location" formControlName="location" placeholder="Bhopal" required>
+        <label for="location">Location <span class="text-danger">*</span></label>
+        <div *ngIf="petAdoptionForm.get('location')?.touched && petAdoptionForm.get('location')?.invalid" class="text-danger">
+          Location is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-12 col-12 mb-3">
+        <textarea class="form-control" id="description" formControlName="description" placeholder="Describe the pet" maxlength="255"></textarea>
+        <label for="description">Description</label>
+      </div>
+
+      <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="petAdoptionForm.invalid">
+        Submit
+      </button>
+    </div>
+  </div>
+</form>

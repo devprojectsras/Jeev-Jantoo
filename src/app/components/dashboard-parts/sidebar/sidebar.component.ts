@@ -22,6 +22,7 @@ export class SidebarComponent {
   govtHelplineMenu = "none";
   userMenu = "none";
   transactionMenu = "none";
+  petAdoptionMenu = "none";
 
   toggleDropdown(menu: string) {
     this.activeItem = menu;
@@ -67,13 +68,16 @@ export class SidebarComponent {
       case "govt-helpline":
         this.govtHelplineMenu = this.govtHelplineMenu === "flex" ? "none" : "flex";
         break;
+      case "pet-adoption":
+        this.petAdoptionMenu = this.petAdoptionMenu === "flex" ? "none" : "flex";
+        break;
       case "users":
         this.userMenu = this.userMenu === "flex" ? "none" : "flex";
         break;
       case "transaction":
         this.transactionMenu = this.transactionMenu === "flex" ? "none" : "flex";
         break;
-    
+
       default:
         console.log("DEFAULT dropdown");
         break;

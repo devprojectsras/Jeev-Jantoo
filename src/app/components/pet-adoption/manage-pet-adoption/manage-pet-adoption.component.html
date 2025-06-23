@@ -1,0 +1,193 @@
+<div class="card m-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <h5 class="card-header">Manage Adoptions</h5>
+    <button class="btn btn-primary m-3 m-md-3" [routerLink]="['/add-new-pet-adoption']">
+      New
+    </button>
+  </div>
+  <div class="table-responsive text-nowrap">
+    <table class="table table-hover table-bordered">
+      <thead class="table-primary">
+        <tr>
+          <th class="fw-bold text-black">Pet Name</th>
+          <th class="fw-bold text-black">Pet Type</th>
+          <th class="fw-bold text-black">Age</th>
+          <th class="fw-bold text-black">Description</th>
+          <th class="fw-bold text-black">Status</th>
+          <th class="fw-bold text-black">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let adoption of paginatedAdoptions">
+          <td>{{ adoption.petName }}</td>
+          <td>{{ adoption.petType }}</td>
+          <td>{{ adoption.age }}</td>
+          <td>{{ adoption.description }}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <span
+                class="badge me-2"
+                [ngClass]="{
+                  'bg-label-success': adoption.status === 'Active',
+                  'bg-label-danger': adoption.status === 'Inactive'
+                }"
+              >
+                {{ adoption.status }}
+              </span>
+              <div class="form-check form-switch">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="statusToggle{{ adoption.id }}"
+                  [checked]="adoption.status === 'Active'"
+                  (change)="onStatusToggle(adoption)"
+                />
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="dropdown">
+              <button
+                type="button"
+                class="btn p-0 dropdown-toggle hide-arrow"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a
+                  class="dropdown-item"
+                  href="javascript:void(0);"
+                  (click)="openEditForm(adoption)"
+                >
+                  <i class="bx bx-edit-alt me-1"></i> Edit
+                </a>
+                <a
+                  class="dropdown-item"
+                  href="javascript:void(0);"
+                  (click)="openDeleteModal(adoption)"
+                >
+                  <i class="bx bx-trash me-1"></i> Delete
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination-controls">
+      <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center m-3 gap-2">
+        <div class="d-flex align-items-center">
+          <label for="rowsPerPage" class="d-block">Rows per page:</label>
+          <select
+            id="rowsPerPage"
+            class="form-select d-inline-block w-auto ms-2"
+            [(ngModel)]="rowsPerPage"
+            (change)="changeRowsPerPage(rowsPerPage)"
+          >
+            <option *ngFor="let option of rowsPerPageOptions" [value]="option">{{ option }}</option>
+          </select>
+        </div>
+        <div class="d-flex align-items-center">
+          <button
+            class="btn btn-secondary me-2"
+            [disabled]="currentPage === 1"
+            (click)="changePage(currentPage - 1)"
+          >
+            Previous
+          </button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button
+            class="btn btn-secondary ms-2"
+            [disabled]="currentPage === totalPages"
+            (click)="changePage(currentPage + 1)"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="selectedAdoption" id="editModal" class="modal show d-block" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Adoption</h5>
+        <button type="button" class="btn-close" (click)="closeEditForm()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editAdoptionForm">
+          <div class="row g-2">
+            <div class="form-floating col-md-6 col-12 mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="petName"
+                formControlName="petName"
+                placeholder="Pet Name"
+                required
+              />
+              <label for="petName">Pet Name <span class="text-danger">*</span></label>
+            </div>
+            <div class="form-floating col-md-6 col-12 mb-3">
+              <select
+                class="form-select"
+                id="petType"
+                formControlName="petType"
+                required
+              >
+                <option value="" disabled>Select a pet type</option>
+                <option value="dog">Dog</option>
+                <option value="cat">Cat</option>
+                <option value="other">Other</option>
+              </select>
+              <label for="petType">Pet Type <span class="text-danger">*</span></label>
+            </div>
+            <div class="form-floating col-md-6 col-12 mb-3">
+              <input
+                type="number"
+                class="form-control"
+                id="age"
+                formControlName="age"
+                placeholder="Age"
+                min="0"
+                required
+              />
+              <label for="age">Age (years) <span class="text-danger">*</span></label>
+            </div>
+            <div class="form-floating col-md-6 col-12 mb-3">
+              <textarea
+                class="form-control"
+                id="description"
+                formControlName="description"
+                placeholder="Description"
+              ></textarea>
+              <label for="description">Description</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditForm()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveAdoption()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Delete Adoption</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+System: <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>

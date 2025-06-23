@@ -1,4 +1,4 @@
-import { Component,OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { LoadCustomScriptService } from '../../services/load-custom-script.service';
 import { FirebaseService } from '../../services/firebase.service';
 import { RouterModule } from '@angular/router';
@@ -11,19 +11,20 @@ import { RouterModule } from '@angular/router';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
-  ngosCount: number = 0;  
-  spasCount : number = 0;
-  veterinaryClinicCount : number = 0;
-  eventsCount : number = 0;
-  ambulanceCount : number = 0;
-  boardingCount : number = 0;
-  abcsCount : number = 0;
-  govthelplineCount : number = 0;
+  ngosCount: number = 0;
+  spasCount: number = 0;
+  veterinaryClinicCount: number = 0;
+  eventsCount: number = 0;
+  ambulanceCount: number = 0;
+  boardingCount: number = 0;
+  abcsCount: number = 0;
+  govthelplineCount: number = 0;
+  petAdoptionCount: number = 0;
 
   constructor(
     private scriptService: LoadCustomScriptService,
     private firebase: FirebaseService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.scriptService.loadDashboardScripts();
@@ -35,6 +36,7 @@ export class DashboardComponent {
     this.getBoardingCount();
     this.getABCsCount();
     this.getGovt_Helpline()
+    this.getPetAdoptionCount();
   }
 
   async getNgosCount(): Promise<void> {
@@ -93,5 +95,11 @@ export class DashboardComponent {
       console.error('Error fetching NGOs count:', error);
     }
   }
-
+  async getPetAdoptionCount(): Promise<void> {
+    try {
+      this.petAdoptionCount = await this.firebase.getCategoryCount('pet-adoption');
+    } catch (error) {
+      console.error('Error fetching Pet Adoption count:', error);
+    }
+  }
 }
