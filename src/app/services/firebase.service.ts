@@ -146,7 +146,6 @@ export class FirebaseService {
   }
   
   
-
   async sendPasswordResetEmail(email: string) {
     try {
       await sendPasswordResetEmail(this.auth, email, {
