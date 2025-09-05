@@ -1,33 +1,38 @@
+// File: src/app/components/users/manage-users/manage-users.component.ts
+
 declare var bootstrap: any;
 
-import { Component  } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FirebaseService } from '../../../services/firebase.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { collection, onSnapshot } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-manage-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
   templateUrl: './manage-users.component.html',
-  styleUrl: './manage-users.component.scss'
+  styleUrls: ['./manage-users.component.scss']
 })
 export class ManageUsersComponent {
-  users: any[] = []; 
+  users: any[] = [];
   editeventsForm: FormGroup;
-  selectedevents: any = null; 
+  selectedevents: any = null;
   eventsToDelete: any;
-  paginatedeventss: any[] = []; 
-  currentPage: number = 1; 
-  rowsPerPage: number = 5; 
-  totalPages: number = 0; 
+  paginatedeventss: any[] = [];
+  currentPage: number = 1;
+  rowsPerPage: number = 5;
+  totalPages: number = 0;
 
   rowsPerPageOptions = [5, 10, 15, 20];
-  
 
-  constructor(private firebaseService: FirebaseService, private fb: FormBuilder, private toastService:ToastrService
+  constructor(
+    private firebaseService: FirebaseService,
+    private fb: FormBuilder,
+    private toastService: ToastrService
   ) {
     this.editeventsForm = this.fb.group({
       firstname: ['', Validators.required],
@@ -42,6 +47,8 @@ export class ManageUsersComponent {
       pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
     });
   }
+
+  // ------------------- Toast -------------------
   showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {
     const currentTime = new Date().toLocaleTimeString();
     const fullTitle = `${title}  ${currentTime}`;
@@ -59,24 +66,23 @@ export class ManageUsersComponent {
       case 'Warning':
         this.toastService.warning(fullTitle, message);
         break;
-      default:
-        console.error('Invalid toast type');
     }
   }
 
-
+  // ------------------- Lifecycle -------------------
   async ngOnInit(): Promise<void> {
-    await this.getInformation(); 
+    await this.getInformation();
     this.updatePagination();
   }
 
-
+  // ------------------- Get Users -------------------
   async getInformation(): Promise<void> {
+    // Using service method to fetch users
     this.users = await this.firebaseService.getInformation('user');
-    console.log('Fetched users:', this.users); // Log the data
     this.updatePagination();
   }
 
+  // ------------------- Pagination -------------------
   updatePagination(): void {
     this.totalPages = Math.ceil(this.users.length / this.rowsPerPage);
     const startIndex = (this.currentPage - 1) * this.rowsPerPage;
@@ -86,7 +92,7 @@ export class ManageUsersComponent {
 
   changeRowsPerPage(rows: number): void {
     this.rowsPerPage = rows;
-    this.currentPage = 1; 
+    this.currentPage = 1;
     this.updatePagination();
   }
 
@@ -95,126 +101,87 @@ export class ManageUsersComponent {
     this.updatePagination();
   }
 
+  // ------------------- Delete User -------------------
   openDeleteModal(users: any): void {
     this.eventsToDelete = users;
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal')!);
     deleteModal.show();
   }
+
   closeDeleteModal() {
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal')!);
     deleteModal.hide();
     this.eventsToDelete = null;
   }
- 
-  
+
   confirmDelete(): void {
     if (this.eventsToDelete) {
       this.deleteInformation(this.eventsToDelete.id);
       this.closeDeleteModal();
     }
   }
-  
+
   async deleteInformation(eventsId: string): Promise<void> {
     try {
       await this.firebaseService.deleteInformation('user', eventsId);
-      this.showToast('Success', 'users deleted successfully!', 'Success');
-      await this.getInformation();
+      this.showToast('Success', 'User deleted successfully!', 'Success');
+      await this.getInformation(); // Refresh user list after deletion
     } catch (error) {
-      console.error('Error deleting users:', error);
-      this.showToast('Error', 'Failed to delete users. Please try again.', 'Error');
+      console.error('Error deleting user:', error);
+      this.showToast('Error', 'Failed to delete user. Please try again.', 'Error');
     }
   }
-  
 
+  // ------------------- Edit User -------------------
   async openEditForm(users: any): Promise<void> {
-    this.selectedevents ={ ...users}; 
+    this.selectedevents = { ...users };
     this.editeventsForm.patchValue(users);
   }
-  
+
   closeEditForm(): void {
     this.selectedevents = null;
     this.editeventsForm.reset();
   }
-  
-
-  onStatusToggle(users: any): void {
-    const newStatus = users.status === 'Active' ? 'Inactive' : 'Active';
-  
-    users.status = newStatus;
-  
-    this.updateeventsStatus(users.id, newStatus);
-  }
-  
-  updateeventsStatus(eventsId: string, status: string): void {
-    this.firebaseService.updateStatus('user', eventsId, status)
-      .then(() => {
-        console.log(`users with ID: ${eventsId} status updated to ${status}`);
-      })
-      .catch((error) => {
-        console.error(`Error updating status for users with ID: ${eventsId}`, error);
-      });
-  }
-  convertTo12HourFormat(time: string): string {
-    if (!time) return ''; 
-    const [hours, minutesWithPeriod] = time.split(':');
-    const minutes = minutesWithPeriod.slice(0, 2); 
-    const period = minutesWithPeriod.slice(2).trim(); 
-  
-    let hours12 = parseInt(hours, 10);
-    let finalPeriod = period || (hours12 >= 12 ? 'PM' : 'AM'); 
-  
-    if (hours12 === 0) {
-      hours12 = 12; 
-    } else if (hours12 > 12) {
-      hours12 = hours12 - 12; 
-    }
-  
-    if (finalPeriod && (finalPeriod === 'AM' || finalPeriod === 'PM')) {
-      return `${hours12}:${minutes} ${finalPeriod}`;
-    }
-  
-    return `${hours12}:${minutes} ${finalPeriod}`;
-  }
-  
-
 
   async saveevents(): Promise<void> {
     if (this.editeventsForm.valid && this.selectedevents) {
       try {
-        const updatedData: any = {
-          updatedAt: Date.now(), 
-        };
-  
+        const updatedData: any = { updatedAt: Date.now() };
+
         for (const controlName in this.editeventsForm.value) {
           if (this.editeventsForm.value.hasOwnProperty(controlName)) {
             const formValue = this.editeventsForm.value[controlName];
-            const currenteventsValue = this.selectedevents[controlName];
-            if (formValue !== currenteventsValue) {
+            const currentValue = this.selectedevents[controlName];
+            if (formValue !== currentValue) {
               updatedData[controlName] = formValue;
             }
           }
         }
-  
-        await this.firebaseService.editInformation(
-          'user',
-          this.selectedevents.id,
-          updatedData
-        );
-  
-        this.showToast('Success', 'users updated successfully!', 'Success');
-  
+
+        await this.firebaseService.editInformation('user', this.selectedevents.id, updatedData);
+
+        this.showToast('Success', 'User updated successfully!', 'Success');
         this.closeEditForm();
-  
-        await this.getInformation();
-        this.updatePagination();
-  
+        await this.getInformation(); // Refresh user list after edit
       } catch (error) {
-        console.error('Error updating users:', error);
-        this.showToast('Error', 'Failed to update users. Please try again.', 'Error');
+        console.error('Error updating user:', error);
+        this.showToast('Error', 'Failed to update user. Please try again.', 'Error');
       }
     } else {
       this.showToast('Error', 'Please fill in all required fields.', 'Error');
     }
   }
-  
+
+  // ------------------- Status Toggle -------------------
+  onStatusToggle(users: any): void {
+    const newStatus = users.status === 'Active' ? 'Inactive' : 'Active';
+    users.status = newStatus;
+    this.updateeventsStatus(users.id, newStatus);
+  }
+
+  updateeventsStatus(eventsId: string, status: string): void {
+    this.firebaseService.updateStatus('user', eventsId, status)
+      .then(() => console.log(`User status updated to ${status}`))
+      .catch((error) => console.error(`Error updating status for user ${eventsId}`, error));
+  }
 }
