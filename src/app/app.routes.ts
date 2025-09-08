@@ -26,6 +26,11 @@ import { ManageSpasComponent } from './components/spas/manage-spas/manage-spas.c
 import { AddNewGovernmentHelplineComponent } from './components/governmentHelplines/add-new-government-helpline/add-new-government-helpline.component';
 import { AddNewPetAdoptionComponent } from './components/pet-adoption/add-new-pet-adoption/add-new-pet-adoption.component';
 import { ManageAdoptionComponent } from './components/pet-adoption/manage-pet-adoption/manage-pet-adoption.component';
+import { ManageMedicalInsuranceComponent } from './components/Insurance/manage-medical-insurance/manage-medical-insurance.component';
+import { AddNewMedicalInsuranceComponent } from './components/Insurance/add-new-medical-insurance/add-new-medical-insurance.component';
+import { AddNewFeedingComponent } from './components/food/add-new-food/add-new-food.component';
+import { ManageFoodComponent } from './components/food/manage-food/manage-food.component';
+
 
 export const routes: Routes = [
   {
@@ -273,6 +278,41 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+  path: 'manage-medical-insurance',
+  component: SecondaryComponent,
+  canActivate: [authGuard],
+  children: [
+    {
+      path: '',
+      component: ManageMedicalInsuranceComponent,
+    },
+  ],
+},
+{
+  path: 'add-new-feeding',
+  component: SecondaryComponent,
+  children: [
+    { path: '', component: AddNewFeedingComponent }
+  ]
+},
+{
+  path: 'manage-food',
+  component: SecondaryComponent,
+  children: [{ path: '', component: ManageFoodComponent }]
+},
+{
+  path: 'add-new-medical-insurance',
+  component: SecondaryComponent,
+  canActivate: [authGuard],
+  children: [
+    {
+      path: '',
+      component: AddNewMedicalInsuranceComponent,
+    },
+  ],
+},
+
   {
     path: 'manage-pet-adoption',
     component: SecondaryComponent,

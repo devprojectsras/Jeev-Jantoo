@@ -8,7 +8,7 @@
     </div>
 
     <div class="row g-2">
-
+      <!-- Name -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="name" formControlName="name" placeholder="John Doe" required>
         <label for="name">Name <span class="text-danger">*</span></label>
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-
+      <!-- Type -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="type" formControlName="type" placeholder="Govt./Private" required>
         <label for="type">Type <span class="text-danger">*</span></label>
@@ -26,7 +26,7 @@
         </div>
       </div>
 
-
+      <!-- State -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <select class="form-select" id="state" formControlName="state" required>
           <option value="" disabled>Select a state</option>
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-
+      <!-- City -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <select class="form-select" id="city" formControlName="city" required>
           <option value="" disabled>Select a city</option>
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-
+      <!-- Area -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="area" formControlName="area" placeholder="Area/Landmark" required>
         <label for="area">Area/Landmark <span class="text-danger">*</span></label>
@@ -61,24 +61,44 @@
           Area is required.
         </div>
       </div>
-     <div class="form-floating col-md-6 col-12 mb-3 ">
-      <input type="text" class="form-control" id="pincode" formControlName="pincode" placeholder="462041" required>
-      <label for="pincode">Pincode <span class="text-danger">*</span></label>
-      <div *ngIf="clinicForm.get('pincode')?.touched && clinicForm.get('pincode')?.invalid" class="text-danger">
-        Pincode is required and must be a 6-digit number
-      </div>
-     </div>
-     <div class="form-floating col-md-6 col-12 mb-3 ">
-      <input type="text" class="form-control" id="contact" formControlName="contact" placeholder="7845129632/0755-478596" required>
-      <label for="contact">contact <span class="text-danger">*</span></label>
-      <div *ngIf="clinicForm.get('contact')?.touched && clinicForm.get('contact')?.invalid" class="text-danger">
-        Contact is required
-      </div>
-     </div>
-     <div class="form-floating col-md-6 col-12 mb-3 ">
-   
-     </div>
 
+      <!-- Pincode -->
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="pincode" formControlName="pincode" placeholder="462041" required>
+        <label for="pincode">Pincode <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('pincode')?.touched && clinicForm.get('pincode')?.invalid" class="text-danger">
+          Pincode is required and must be a 6-digit number
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="contact" formControlName="contact" placeholder="7845129632/0755-478596" required>
+        <label for="contact">Contact <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('contact')?.touched && clinicForm.get('contact')?.invalid" class="text-danger">
+          Contact is required
+        </div>
+      </div>
+
+      <!-- Latitude -->
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="lat" formControlName="lat" placeholder="23.2599" required>
+        <label for="lat">Latitude <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('lat')?.touched && clinicForm.get('lat')?.invalid" class="text-danger">
+          Latitude is required and must be a valid number
+        </div>
+      </div>
+
+      <!-- Longitude -->
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" id="lng" formControlName="lng" placeholder="77.4126" required>
+        <label for="lng">Longitude <span class="text-danger">*</span></label>
+        <div *ngIf="clinicForm.get('lng')?.touched && clinicForm.get('lng')?.invalid" class="text-danger">
+          Longitude is required and must be a valid number
+        </div>
+      </div>
+
+      <!-- Time From -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="time" class="form-control" id="timeFrom" formControlName="timeFrom" required>
         <label for="timeFrom">Time From <span class="text-danger">*</span></label>
@@ -87,7 +107,7 @@
         </div>
       </div>
 
-
+      <!-- Time To -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="time" class="form-control" id="timeTo" formControlName="timeTo" required>
         <label for="timeTo">Time To <span class="text-danger">*</span></label>
@@ -96,12 +116,11 @@
         </div>
       </div>
 
-
+      <!-- Remarks -->
       <div class="form-floating col-md-12 col-12 mb-3">
         <textarea class="form-control" id="remarks" formControlName="remarks" placeholder="Leave a remark here" maxlength="255"></textarea>
         <label for="remarks">Remarks</label>
       </div>
-
 
       <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="clinicForm.invalid">
         Submit
@@ -109,4 +128,3 @@
     </div>
   </div>
 </form>
-

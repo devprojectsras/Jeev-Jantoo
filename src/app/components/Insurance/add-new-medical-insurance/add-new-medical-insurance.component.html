@@ -1,0 +1,66 @@
+<div class="card m-4 p-3">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+    <h5 class="card-header mb-0">Add New Medical Insurance</h5>
+    <button type="button" class="btn btn-outline-primary m-3 col-md-3 col-12" [routerLink]="['/manage-medical-insurance']">
+      <i class="bx bx-list-ul"></i> Manage Insurance
+    </button>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="insuranceForm" (ngSubmit)="onSubmit()" class="row g-3">
+    <div class="form-floating col-md-6">
+      <input type="text" formControlName="providerName" class="form-control"
+             [ngClass]="{'is-invalid': insuranceForm.get('providerName')?.touched && insuranceForm.get('providerName')?.invalid}"
+             placeholder="Provider Name" required />
+      <label>Provider Name <span class="text-danger">*</span></label>
+      <div *ngIf="insuranceForm.get('providerName')?.touched && insuranceForm.get('providerName')?.invalid"
+           class="invalid-feedback">
+        Provider Name is required
+      </div>
+    </div>
+
+    <div class="form-floating col-md-6">
+      <input type="text" formControlName="website" class="form-control"
+             [ngClass]="{'is-invalid': insuranceForm.get('website')?.touched && insuranceForm.get('website')?.invalid}"
+             placeholder="https://example.com" required />
+      <label>Website <span class="text-danger">*</span></label>
+      <div *ngIf="insuranceForm.get('website')?.touched && insuranceForm.get('website')?.invalid"
+           class="invalid-feedback">
+        <div *ngIf="insuranceForm.get('website')?.errors?.['required']">Website is required</div>
+        <div *ngIf="insuranceForm.get('website')?.errors?.['pattern']">Please enter a valid URL (e.g., https://example.com)</div>
+      </div>
+    </div>
+
+    <div class="form-floating col-12">
+      <textarea formControlName="coverage" class="form-control" rows="3"
+                [ngClass]="{'is-invalid': insuranceForm.get('coverage')?.touched && insuranceForm.get('coverage')?.invalid}"
+                placeholder="Coverage" required></textarea>
+      <label>Coverage <span class="text-danger">*</span></label>
+      <div *ngIf="insuranceForm.get('coverage')?.touched && insuranceForm.get('coverage')?.invalid"
+           class="invalid-feedback">
+        Coverage is required
+      </div>
+    </div>
+
+    <div class="form-floating col-md-6">
+      <input type="text" formControlName="contact" class="form-control"
+             [ngClass]="{'is-invalid': insuranceForm.get('contact')?.touched && insuranceForm.get('contact')?.invalid}"
+             placeholder="Contact" required />
+      <label>Contact <span class="text-danger">*</span></label>
+      <div *ngIf="insuranceForm.get('contact')?.touched && insuranceForm.get('contact')?.invalid"
+           class="invalid-feedback">
+        Contact is required
+      </div>
+    </div>
+
+    <div class="form-floating col-12">
+      <textarea formControlName="remarks" class="form-control" rows="2" placeholder="Remarks"></textarea>
+      <label>Remarks</label>
+    </div>
+
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit" [disabled]="insuranceForm.invalid">Submit</button>
+    </div>
+  </form>
+</div>

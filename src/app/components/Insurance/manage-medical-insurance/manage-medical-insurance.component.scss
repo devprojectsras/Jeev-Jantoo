@@ -1,0 +1,29 @@
+.table-responsive {
+  overflow: visible !important; /* Prevent clipping of dropdown */
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  z-index: 1050; /* Ensure dropdown appears above other elements */
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 120px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for visibility */
+  border: 1px solid #ddd; /* Subtle border */
+}
+
+.modal {
+  z-index: 1060; /* Higher than dropdown */
+}
+
+.modal-backdrop {
+  z-index: 1055; /* Between dropdown and modal */
+}
+
+.form-check-input {
+  cursor: pointer;
+}

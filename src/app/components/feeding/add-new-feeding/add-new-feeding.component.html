@@ -1,0 +1,16 @@
+<!-- src/app/components/feeding/add-new-feeding/add-new-feeding.component.html -->
+
+<h1 style="color:red">TEST FORM</h1> <!-- Ye sirf test ke liye -->
+
+<form [formGroup]="feedingForm" (ngSubmit)="onSubmit()" class="card m-4">
+  <div class="card-body">
+    <h4 class="mb-3">Add New Feeding</h4>
+
+    <div class="form-floating mb-3">
+      <input type="text" class="form-control" id="name" formControlName="name" placeholder="Name">
+      <label for="name">Name <span class="text-danger">*</span></label>
+    </div>
+    
+    <!-- rest of your form fields -->
+  </div>
+</form>

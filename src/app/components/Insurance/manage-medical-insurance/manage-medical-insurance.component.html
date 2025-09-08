@@ -1,0 +1,160 @@
+<div class="card m-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="card-header">Manage Insurance</h5>
+    <button class="btn btn-primary m-3" [routerLink]="['/add-new-medical-insurance']">
+      <i class="bx bx-plus"></i> New
+    </button>
+  </div>
+
+  <div class="table-responsive text-nowrap">
+    <table class="table table-hover table-bordered align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th class="fw-bold text-black">Provider</th>
+          <th class="fw-bold text-black">Coverage</th>
+          <th class="fw-bold text-black">Contact</th>
+          <th class="fw-bold text-black">Status</th>
+          <th class="fw-bold text-black text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ins of paginatedInsurances">
+          <td>{{ ins.providerName }}</td>
+          <td>{{ ins.coverage }}</td>
+          <td>{{ ins.contact }}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="badge me-2"
+                [ngClass]="{
+                  'bg-label-success': ins.status === 'Active',
+                  'bg-label-danger': ins.status === 'Inactive'
+                }">
+                {{ ins.status }}
+              </span>
+              <div class="form-check form-switch">
+                <input type="checkbox" class="form-check-input"
+                       [id]="'statusToggle' + ins.id"
+                       [checked]="ins.status === 'Active'"
+                       (change)="onStatusToggle(ins)" />
+              </div>
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="dropdown">
+              <button
+                class="btn p-0 dropdown-toggle hide-arrow"
+                type="button"
+                data-bs-toggle="dropdown"
+                data-bs-popper="static"
+              >
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a
+                  class="dropdown-item"
+                  href="javascript:void(0);"
+                  (click)="openEditForm(ins)"
+                >
+                  <i class="bx bx-edit-alt me-1"></i> Edit
+                </a>
+                <a
+                  class="dropdown-item text-danger"
+                  href="javascript:void(0);"
+                  (click)="openDeleteModal(ins)"
+                >
+                  <i class="bx bx-trash me-1"></i> Delete
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination-controls">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center m-3 gap-2">
+      <div class="d-flex align-items-center">
+        <label class="me-2">Rows per page:</label>
+        <select class="form-select w-auto"
+                [(ngModel)]="rowsPerPage"
+                (change)="changeRowsPerPage(rowsPerPage)">
+          <option *ngFor="let option of rowsPerPageOptions" [value]="option">{{ option }}</option>
+        </select>
+      </div>
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-secondary me-2"
+                [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="btn btn-outline-secondary ms-2"
+                [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="selectedInsurance" class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Insurance</h5>
+        <button type="button" class="btn-close" (click)="closeEditForm()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editInsuranceForm" class="row g-3">
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="providerName" placeholder="Provider Name" required />
+            <label>Provider Name <span class="text-danger">*</span></label>
+          </div>
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="coverage" placeholder="Coverage" required />
+            <label>Coverage <span class="text-danger">*</span></label>
+          </div>
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="contact" placeholder="Contact" required />
+            <label>Contact <span class="text-danger">*</span></label>
+          </div>
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="website" placeholder="Website" />
+            <label>Website</label>
+          </div>
+          <div class="form-floating col-12">
+            <textarea class="form-control" formControlName="remarks" placeholder="Remarks"></textarea>
+            <label>Remarks</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeEditForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveInsurance()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div *ngIf="insuranceToDelete" class="modal fade show d-block" tabindex="-1" id="deleteModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Insurance</h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{ insuranceToDelete.providerName }}</strong>?<br />
+        This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

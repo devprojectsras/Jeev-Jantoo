@@ -88,6 +88,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- Add this card inside the appropriate <div class="row"> with other cards -->
+
                 <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-4">
                     <div class="card" style="background-color: #FFFAE7; overflow: hidden;">
                         <div class="card-body" style="position: relative;">
@@ -259,6 +261,63 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-4">
+                    <div class="card" style="background-color: #FFF6F9; overflow: hidden;">
+                        <div class="card-body" style="position: relative;">
+                            <div
+                                style="background-color: #FFB6C1; border-radius: 100%; width: 200px; height: 200px; position: absolute; top: -120px; left: 50px;">
+                            </div>
+                            <div class="card-title d-flex align-items-start justify-content-between mb-5">
+                                <div class="avatar flex-shrink-0">
+                                    <img src="custom_assets/assets/img/icons/unicons/food.png" alt="Feeding"
+                                        class="rounded" />
+                                </div>
+                                <div class="avatar d-flex align-items-end flex-column justify-content-center">
+                                    <h3 class="card-title mb-2">{{ feedingCount }}</h3>
+                                    <span class="fw-semibold d-block mb-1">Feeding</span>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <a class="btn p-1 rounded-4 border-2 border-dark bg-white"
+                                    [routerLink]="['/add-new-feeding']" style="font-size: 12px;">
+                                    Add more
+                                    <img style="width: 15px; height: 15px;"
+                                        src="custom_assets/assets/img/icons/unicons/add.png" alt="Add"
+                                        class="rounded" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-4">
+                    <div class="card" style="background-color: #E8F6FF; overflow: hidden;">
+                        <div class="card-body" style="position: relative;">
+                            <div
+                                style="background-color: #90CAF9; border-radius: 100%; width: 200px; height: 200px; position: absolute; top: -120px; left: 50px;">
+                            </div>
+                            <div class="card-title d-flex align-items-start justify-content-between mb-5">
+                                <div class="avatar flex-shrink-0">
+                                    <img src="custom_assets/assets/img/icons/unicons/insurance.png"
+                                        alt="Medical Insurance" class="rounded" />
+                                </div>
+                                <div class="avatar d-flex align-items-end flex-column justify-content-center">
+                                    <h3 class="card-title mb-2">{{ medicalInsuranceCount }}</h3>
+                                    <span class="fw-semibold d-block mb-1">Insurance</span>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <a class="btn p-1 rounded-4 border-2 border-dark bg-white"
+                                    [routerLink]="['/add-new-medical-insurance']" style="font-size: 12px;">
+                                    Add more
+                                    <img style="width: 15px; height: 15px;"
+                                        src="custom_assets/assets/img/icons/unicons/add.png" alt="Add"
+                                        class="rounded" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-4">
                     <div class="card" style="background-color: #FFF3F0; overflow: hidden;">
                         <div class="card-body" style="position: relative;">
                             <div
@@ -266,8 +325,8 @@
                             </div>
                             <div class="card-title d-flex align-items-start justify-content-between mb-5">
                                 <div class="avatar flex-shrink-0">
-                                    <img src="custom_assets\assets\img\icons\unicons\adoption.png"
-                                        alt="chart success" class="rounded" />
+                                    <img src="custom_assets\assets\img\icons\unicons\adoption.png" alt="chart success"
+                                        class="rounded" />
                                 </div>
                                 <div class="avatar d-flex align-items-end flex-column justify-content-center">
                                     <h3 class="card-title mb-2">{{ petAdoptionCount }}</h3>

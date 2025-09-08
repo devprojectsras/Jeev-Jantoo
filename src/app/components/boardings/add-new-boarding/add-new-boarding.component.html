@@ -86,7 +86,22 @@
           </div>
         </div>
   
+ <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="number" step="any" class="form-control" id="lat" formControlName="lat" placeholder="Latitude" required>
+        <label for="lat">Latitude <span class="text-danger">*</span></label>
+        <div *ngIf="boardingForm.get('lat')?.touched && boardingForm.get('lat')?.invalid" class="text-danger">
+          Latitude is required and must be a valid number.
+        </div>
+      </div>
 
+      <!-- Longitude -->
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="number" step="any" class="form-control" id="lng" formControlName="lng" placeholder="Longitude" required>
+        <label for="lng">Longitude <span class="text-danger">*</span></label>
+        <div *ngIf="boardingForm.get('lng')?.touched && boardingForm.get('lng')?.invalid" class="text-danger">
+          Longitude is required and must be a valid number.
+        </div>
+      </div>
   
   
         <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="boardingForm.invalid">

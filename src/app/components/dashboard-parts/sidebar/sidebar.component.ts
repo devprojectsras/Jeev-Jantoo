@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss'
+  styleUrls: ['./sidebar.component.scss'] // fixed typo 'styleUrl' → 'styleUrls'
 })
 export class SidebarComponent {
 
@@ -23,25 +23,11 @@ export class SidebarComponent {
   userMenu = "none";
   transactionMenu = "none";
   petAdoptionMenu = "none";
+  insuranceMenu = "none";
+  feedingMenu = "none"; // updated property
 
   toggleDropdown(menu: string) {
     this.activeItem = menu;
-
-    // const menuItems = [
-    //   this.veterinaryClinicMenu,
-    //   this.ngoMenu,
-    //   this.eventMenu,
-    //   this.ambulanceMenu,
-    //   this.boardingMenu,
-    //   this.abcMenu,
-    //   this.spaMenu,
-    //   this.govtHelplineMenu,
-    //   this.userMenu,
-    //   this.transactionMenu
-    // ];
-    // menuItems.forEach((item: any) => {
-    //   item = "none";
-    // });
 
     switch (menu) {
       case "veterinary-clinic":
@@ -68,6 +54,9 @@ export class SidebarComponent {
       case "govt-helpline":
         this.govtHelplineMenu = this.govtHelplineMenu === "flex" ? "none" : "flex";
         break;
+      case "feeding":  // updated key to match HTML
+        this.feedingMenu = this.feedingMenu === "flex" ? "none" : "flex";
+        break;
       case "pet-adoption":
         this.petAdoptionMenu = this.petAdoptionMenu === "flex" ? "none" : "flex";
         break;
@@ -77,7 +66,9 @@ export class SidebarComponent {
       case "transaction":
         this.transactionMenu = this.transactionMenu === "flex" ? "none" : "flex";
         break;
-
+      case "insurance":
+        this.insuranceMenu = this.insuranceMenu === "flex" ? "none" : "flex";
+        break;
       default:
         console.log("DEFAULT dropdown");
         break;

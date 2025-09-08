@@ -218,6 +218,49 @@
                 </li>
             </ul>
         </li>
+       <li class="menu-item" [class.active]="activeItem === 'feeding'">
+  <a (click)="toggleDropdown('feeding')" class="menu-link menu-toggle">
+      <img style="width: 24px; height: 24px; margin-right: 5px;"
+          src="custom_assets/assets/img/icons/unicons/food.png" alt="feeding icon" />
+      <div data-i18n="Feeding (Food)">Feeding (Food)</div>
+  </a>
+  <ul class="menu-sub" [style.display]="feedingMenu">
+      <li class="menu-item">
+          <a class="menu-link" [routerLink]="['/add-new-feeding']">
+              <div data-i18n="New Feeding">New Feeding</div>
+          </a>
+      </li>
+      <li class="menu-item">
+          <a class="menu-link" [routerLink]="['/manage-food']">
+              <div data-i18n="Manage Feeding">Manage Feeding</div>
+          </a>
+      </li>
+  </ul>
+</li>
+
+
+
+        <li class="menu-item" [class.active]="activeItem === 'insurance'">
+            <a (click)="toggleDropdown('insurance')" class="menu-link menu-toggle">
+                <!-- <i class="menu-icon tf-icons bx bx-dock-top"></i> -->
+                <img style="width: 24px; height: 24px; margin-right: 5px;"
+                    src="custom_assets/assets/img/icons/unicons/insurance.png" alt="insurance icon" />
+                <div data-i18n="Medical Insurance">Medical Insurance</div>
+            </a>
+            <ul class="menu-sub" [style.display]="insuranceMenu">
+                <li class="menu-item">
+                    <a class="menu-link" [routerLink]="['/add-new-medical-insurance']">
+                        <div data-i18n="New Medical Insurance">New Medical Insurance</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" [routerLink]="['/manage-medical-insurance']">
+                        <div data-i18n="Manage Medical Insurance">Manage Medical Insurance</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
 
 
         <!-- new -->

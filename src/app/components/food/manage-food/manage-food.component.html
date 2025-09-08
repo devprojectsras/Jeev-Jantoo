@@ -1,0 +1,166 @@
+<div class="card m-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <h5 class="card-header mb-0">Manage Food</h5>
+    <button class="btn btn-primary m-3" [routerLink]="['/add-new-feeding']">
+      <i class="bx bx-plus"></i> New
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive text-nowrap">
+    <table class="table table-hover table-bordered align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th class="fw-bold text-black">Name</th>
+          <th class="fw-bold text-black">Type</th>
+          <th class="fw-bold text-black">Quantity</th>
+          <th class="fw-bold text-black">Remarks</th>
+          <th class="fw-bold text-black">Status</th>
+          <th class="fw-bold text-black text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let food of paginatedFoods">
+          <td>{{ food.name }}</td>
+          <td>{{ food.type }}</td>
+          <td>{{ food.quantity }}</td>
+          <td>{{ food.remarks }}</td>
+
+          <!-- Status -->
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="badge me-2"
+                [ngClass]="{
+                  'bg-label-success': food.status === 'Active',
+                  'bg-label-danger': food.status === 'Inactive'
+                }">
+                {{ food.status }}
+              </span>
+              <div class="form-check form-switch">
+                <input type="checkbox" class="form-check-input"
+                       [id]="'statusToggle' + food.id"
+                       [checked]="food.status === 'Active'"
+                       (change)="onStatusToggle(food)" />
+              </div>
+            </div>
+          </td>
+
+          <!-- Actions -->
+          <td class="text-center">
+            <div class="dropdown">
+              <button
+                class="btn p-0 dropdown-toggle hide-arrow"
+                type="button"
+                data-bs-toggle="dropdown"
+                data-bs-popper="static"
+              >
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a
+                  class="dropdown-item"
+                  href="javascript:void(0);"
+                  (click)="openEditForm(food)"
+                >
+                  <i class="bx bx-edit-alt me-1"></i> Edit
+                </a>
+                <a
+                  class="dropdown-item text-danger"
+                  href="javascript:void(0);"
+                  (click)="openDeleteModal(food)"
+                >
+                  <i class="bx bx-trash me-1"></i> Delete
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center m-3 gap-2">
+      <div class="d-flex align-items-center">
+        <label class="me-2">Rows per page:</label>
+        <select class="form-select w-auto"
+                [(ngModel)]="rowsPerPage"
+                (change)="changeRowsPerPage(rowsPerPage)">
+          <option *ngFor="let option of rowsPerPageOptions" [value]="option">{{ option }}</option>
+        </select>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-secondary me-2"
+                [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="btn btn-outline-secondary ms-2"
+                [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="selectedFood" class="modal fade show d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Food</h5>
+        <button type="button" class="btn-close" (click)="closeEditForm()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="editFoodForm" class="row g-3">
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="name" placeholder="Food Name" required />
+            <label>Name <span class="text-danger">*</span></label>
+          </div>
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="type" placeholder="Type" required />
+            <label>Type <span class="text-danger">*</span></label>
+          </div>
+          <div class="form-floating col-md-6">
+            <input type="text" class="form-control" formControlName="quantity" placeholder="Quantity" required />
+            <label>Quantity <span class="text-danger">*</span></label>
+          </div>
+          <div class="form-floating col-12">
+            <textarea class="form-control" formControlName="remarks" placeholder="Remarks"></textarea>
+            <label>Remarks</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeEditForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveFood()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div *ngIf="foodToDelete" class="modal fade show d-block" tabindex="-1" id="deleteModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Food</h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{ foodToDelete.name }}</strong>?<br />
+        This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -13,10 +13,13 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './add-new-boarding.component.html',
   styleUrl: './add-new-boarding.component.scss'
 })
-export class AddNewBoardingComponent {
+export class AddNewBoardingComponent implements OnInit {
   boardingForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private firebaseService: FirebaseService, private toastService:ToastrService
+  constructor(
+    private fb: FormBuilder,
+    private firebaseService: FirebaseService,
+    private toastService: ToastrService
   ) {}
 
   showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {
@@ -41,7 +44,6 @@ export class AddNewBoardingComponent {
     }
   }
 
-
   ngOnInit(): void {
     this.boardingForm = this.fb.group({
       name: ['', Validators.required],
@@ -52,30 +54,24 @@ export class AddNewBoardingComponent {
       pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
       timeFrom: ['', Validators.required],
       timeTo: ['', Validators.required],
+      lat: ['', [Validators.required, Validators.pattern('^-?\\d+(\\.\\d+)?$')]],  // latitude
+      lng: ['', [Validators.required, Validators.pattern('^-?\\d+(\\.\\d+)?$')]]   // longitude
     });
   }
 
-  
   convertTo12HourFormat(time: string): string {
     if (!time) return ''; 
     const [hours, minutes] = time.split(':');
     let hours12 = parseInt(hours, 10);
     const period = hours12 >= 12 ? 'PM' : 'AM';
-
-    if (hours12 > 12) {
-      hours12 = hours12 - 12;
-    } else if (hours12 === 0) {
-      hours12 = 12; 
-    }
-
+    if (hours12 > 12) hours12 -= 12;
+    else if (hours12 === 0) hours12 = 12;
     return `${hours12}:${minutes} ${period}`;
   }
 
   onSubmit(): void {
     if (this.boardingForm.valid) {
       const formValue = this.boardingForm.value;
-
-    
 
       const boardingData = {
         name: formValue.name,
@@ -86,6 +82,8 @@ export class AddNewBoardingComponent {
         pincode: formValue.pincode,
         timeFrom: formValue.timeFrom,
         timeTo: formValue.timeTo,
+        lat: Number(formValue.lat),
+        lng: Number(formValue.lng),
         status: "Active",
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -94,17 +92,17 @@ export class AddNewBoardingComponent {
       const docID = uuidv4();
 
       this.firebaseService
-      .addInformation(docID, boardingData, "boardings")
-      .then((response) => {
-        console.log('boarding added successfully with ID:', response);
-        this.boardingForm.reset();
-        this.showToast( "Success",`Boarding "${formValue.name}" added successfully!`,'Success');
+        .addInformation(docID, boardingData, "boardings")
+        .then((response) => {
+          console.log('Boarding added successfully with ID:', response);
+          this.boardingForm.reset();
+          this.showToast("Success", `Boarding "${formValue.name}" added successfully!`, 'Success');
+        })
+        .catch((error) => {
+          console.error('Error saving boarding:', error);
+          this.showToast("Error", `Failed to add boarding "${formValue.name}". Please try again.`, "Error");
+        });
 
-      })
-      .catch((error) => {
-        console.error('Error saving boarding:', error);
-        this.showToast("Error",`Failed to add boarding "${formValue.name}". Please try again.`,"Error");
-      });
       console.log('Form Data:', boardingData);
     } else {
       console.log('Form is not valid');

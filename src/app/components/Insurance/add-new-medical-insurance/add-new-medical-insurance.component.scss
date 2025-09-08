@@ -1,0 +1,15 @@
+.card-header {
+  padding: 0; /* Remove default padding to align with content */
+}
+
+.form-floating > textarea {
+  height: auto; /* Ensure textarea respects rows attribute */
+}
+
+.form-floating > label {
+  padding-left: 12px; /* Align label with input text */
+}
+
+.text-danger {
+  font-size: 0.9em; /* Slightly smaller asterisk for required fields */
+}

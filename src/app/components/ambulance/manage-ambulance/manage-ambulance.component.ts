@@ -29,16 +29,19 @@ export class ManageAmbulanceComponent {
 
   constructor(private firebaseService: FirebaseService, private fb: FormBuilder , private toastService:ToastrService
   ) {
-    this.editambulanceForm = this.fb.group({
-      name: ['', Validators.required],
-      vehicleNumber: ['', Validators.required],
-      govtBody: ['', Validators.required],
-      state: ['', Validators.required],
-      city: ['', Validators.required],
-      area: ['', Validators.required],
-      pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
-      status: ['', Validators.required],
-    });
+   this.editambulanceForm = this.fb.group({
+  name: ['', Validators.required],
+  vehicleNumber: ['', Validators.required],
+  govtBody: ['', Validators.required],
+  state: ['', Validators.required],
+  city: ['', Validators.required],
+  area: ['', Validators.required],
+  pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
+  lat: ['', Validators.required],   // ✅ new
+  lng: ['', Validators.required],   // ✅ new
+  status: ['', Validators.required],
+});
+
   }
 
   showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {

@@ -1,0 +1,69 @@
+
+<form [formGroup]="feedingForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
+  <div class="card-body">
+
+    <div class="d-md-flex align-items-center justify-content-between mb-3">
+      <div class="text-center text-md-start mb-2 mb-md-0">
+        <h4>New Feeding</h4>
+      </div>
+      <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-food']">
+        Manage Feeding
+      </button>
+    </div>
+
+    <div class="row g-2">
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" formControlName="name" placeholder="John Doe" required>
+        <label>Name <span class="text-danger">*</span></label>
+        <div *ngIf="feedingForm.get('name')?.touched && feedingForm.get('name')?.invalid" class="text-danger">
+          Name is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <select class="form-select" formControlName="individual" required>
+          <option value="" disabled>Select</option>
+          <option value="Y">Yes</option>
+          <option value="N">No</option>
+        </select>
+        <label>Individual (Y/N) <span class="text-danger">*</span></label>
+        <div *ngIf="feedingForm.get('individual')?.touched && feedingForm.get('individual')?.invalid" class="text-danger">
+          Please select individual (Y/N).
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" formControlName="contact" placeholder="Contact" required>
+        <label>Contact <span class="text-danger">*</span></label>
+        <div *ngIf="feedingForm.get('contact')?.touched && feedingForm.get('contact')?.invalid" class="text-danger">
+          Contact is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-md-6 col-12 mb-3">
+        <input type="text" class="form-control" formControlName="address" placeholder="Address" required>
+        <label>Address <span class="text-danger">*</span></label>
+        <div *ngIf="feedingForm.get('address')?.touched && feedingForm.get('address')?.invalid" class="text-danger">
+          Address is required.
+        </div>
+      </div>
+
+      <div class="form-floating col-12 mb-3">
+        <textarea class="form-control" formControlName="food_items" placeholder="Food Items" required></textarea>
+        <label>Food Items <span class="text-danger">*</span></label>
+        <div *ngIf="feedingForm.get('food_items')?.touched && feedingForm.get('food_items')?.invalid" class="text-danger">
+          Food Items are required.
+        </div>
+      </div>
+
+      <div class="form-floating col-12 mb-3">
+        <textarea class="form-control" formControlName="remarks" placeholder="Remarks"></textarea>
+        <label>Remarks</label>
+      </div>
+
+      <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="feedingForm.invalid">
+        Submit
+      </button>
+    </div>
+  </div>
+</form>

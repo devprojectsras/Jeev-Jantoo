@@ -42,19 +42,21 @@ export class AddNewAmbulanceComponent {
     }
   }
 
-  ngOnInit(): void {
-    this.ambulanceForm = this.fb.group({
-      name: ['', Validators.required],
-      contact: ['', Validators.required],
-      vehicleNumber: ['', Validators.required],
-      govtBody: ['', Validators.required],
-      state: ['', Validators.required],
-      city: ['', Validators.required],
-      area: ['', Validators.required],
-      pincode: ['', Validators.required],
+ ngOnInit(): void {
+  this.ambulanceForm = this.fb.group({
+    name: ['', Validators.required],
+    contact: ['', Validators.required],
+    vehicleNumber: ['', Validators.required],
+    govtBody: ['', Validators.required],
+    state: ['', Validators.required],
+    city: ['', Validators.required],
+    area: ['', Validators.required],
+    pincode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+    lat: ['', Validators.required],
+    lng: ['', Validators.required],
+  });
+}
 
-    });
-  }
 
   
   
@@ -64,19 +66,22 @@ export class AddNewAmbulanceComponent {
       const formValue = this.ambulanceForm.value;
 
 
-      const ambulanceData = {
-        name: formValue.name,
-        contact: formValue.contact,
-        vehicleNumber: formValue.vehicleNumber,
-        govtBody: formValue.govtBody,
-        state: formValue.state,
-        city: formValue.city,
-        area: formValue.area,
-        pincode: formValue.pincode,
-        status: "Active",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
+     const ambulanceData = {
+  name: formValue.name,
+  contact: formValue.contact,
+  vehicleNumber: formValue.vehicleNumber,
+  govtBody: formValue.govtBody,
+  state: formValue.state,
+  city: formValue.city,
+  area: formValue.area,
+  pincode: formValue.pincode,
+  lat: Number(formValue.lat),
+  lng: Number(formValue.lng),
+  status: "Active",
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+};
+
 
       const docID = uuidv4();
 
