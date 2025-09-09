@@ -41,12 +41,19 @@ export class AddNewFeedingComponent implements OnInit {
     if (this.feedingForm.valid) {
       const formValue = this.feedingForm.value;
       const feedingData = {
-        id: uuidv4(),
-        ...formValue,
-        status: 'Active',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
+  id: uuidv4(),
+  name: formValue.name,
+  individual: formValue.individual,
+  contact: formValue.contact,
+  address: formValue.address,
+  food_items: formValue.food_items.split('\n'), // convert each line into an array
+  remarks: formValue.remarks,
+  lat: formValue.lat || null,
+  lng: formValue.lng || null,
+  status: 'Active',
+  createdAt: Date.now(),
+  updatedAt: Date.now()
+};
 
       this.firebaseService.addInformation(feedingData.id, feedingData, 'food')
         .then(() => {

@@ -1,81 +1,101 @@
-<form [formGroup]="abcsForm" (ngSubmit)="onSubmit()" class="card m-4 align-content-md-start">
-    <div class="card-body">
-      <div class="d-md-flex align-items-center justify-content-between mb-3">
-        <div class="text-center text-md-start mb-2 mb-md-0">
-          <h4>New ABCs</h4>
-        </div>
-        <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-abcs']">Manage ABCs</button>
-      </div>
+<div class="container">
+  <h2>Add New ABC</h2>
   
-      <div class="row g-2">
+  <form [formGroup]="abcsForm" (ngSubmit)="onSubmit()" class="abc-form">
 
-        <div class="form-floating col-md-6 col-12 mb-3">
-          <input type="text" class="form-control" id="personIncharge" formControlName="personIncharge" placeholder="John Doe" required>
-          <label for="personIncharge">Person Incharge <span class="text-danger">*</span></label>
-          <div *ngIf="abcsForm.get('personIncharge')?.touched && abcsForm.get('personIncharge')?.invalid" class="text-danger">
-            Person Incharge is required.
-          </div>
-        </div>
-  
-  
-        <div class="form-floating col-md-6 col-12 mb-3">
-          <input type="text" class="form-control" id="type" formControlName="type" placeholder="Govt./Private" required>
-          <label for="type">Type <span class="text-danger">*</span></label>
-          <div *ngIf="abcsForm.get('type')?.touched && abcsForm.get('type')?.invalid" class="text-danger">
-            Type is required.
-          </div>
-        </div>
-  
-  
-        <div class="form-floating col-md-6 col-12 mb-3"> 
-          <select class="form-select" id="state" formControlName="state" required>
-            <option value="" disabled>Select a state</option>
-            <option value="Madhya Pradesh">Madhya Pradesh</option>
-          </select>
-          <label for="state">State <span class="text-danger">*</span></label>
-          <div *ngIf="abcsForm.get('state')?.touched && abcsForm.get('state')?.invalid" class="text-danger">
-            State is required.
-          </div>
-        </div>
-  
-  
-        <div class="form-floating col-md-6 col-12 mb-3">
-          <select class="form-select" id="city" formControlName="city" required>
-            <option value="" disabled>Select a city</option>
-            <option value="Bhopal">Bhopal</option>
-            <option value="Indore">Indore</option>
-            <option value="Jabalpur">Jabalpur</option>
-            <option value="Gwalior">Gwalior</option>
-          </select>
-          <label for="city">City <span class="text-danger">*</span></label>
-          <div *ngIf="abcsForm.get('city')?.touched && abcsForm.get('city')?.invalid" class="text-danger">
-            City is required.
-          </div>
-        </div>
-  
-  
-        <div class="form-floating col-md-6 col-12 mb-3">
-          <input type="text" class="form-control" id="area" formControlName="area" placeholder="Area/Landmark" required>
-          <label for="area">Area/Landmark <span class="text-danger">*</span></label>
-          <div *ngIf="abcsForm.get('area')?.touched && abcsForm.get('area')?.invalid" class="text-danger">
-            Area is required.
-          </div>
-        </div>
-  
-        <div class="form-floating col-md-6 col-12 mb-3">
-          <input type="text" class="form-control" id="pincode" formControlName="pincode" placeholder="Area/Landmark" required>
-          <label for="pincode">Pincode<span class="text-danger">*</span></label>
-          <div *ngIf="abcsForm.get('pincode')?.touched && abcsForm.get('pincode')?.invalid" class="text-danger">
-            Pincode is required and must be a 6-digit number
-          </div>
-        </div>
-  
-  
-  
-        <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="abcsForm.invalid">
-          Submit
-        </button>
+    <!-- Person Incharge -->
+    <div class="form-group">
+      <label>Person Incharge</label>
+      <input type="text" formControlName="personIncharge" class="form-control" placeholder="Enter person incharge">
+      <div *ngIf="abcsForm.get('personIncharge')?.touched && abcsForm.get('personIncharge')?.invalid" class="text-danger">
+        Person incharge is required.
       </div>
     </div>
+
+    <!-- Type -->
+    <div class="form-group">
+      <label>Type</label>
+      <input type="text" formControlName="type" class="form-control" placeholder="Enter type">
+      <div *ngIf="abcsForm.get('type')?.touched && abcsForm.get('type')?.invalid" class="text-danger">
+        Type is required.
+      </div>
+    </div>
+
+    <!-- State -->
+    <div class="form-group">
+      <label>State</label>
+      <input type="text" formControlName="state" class="form-control" placeholder="Enter state">
+      <div *ngIf="abcsForm.get('state')?.touched && abcsForm.get('state')?.invalid" class="text-danger">
+        State is required.
+      </div>
+    </div>
+
+    <!-- City -->
+    <div class="form-group">
+      <label>City</label>
+      <input type="text" formControlName="city" class="form-control" placeholder="Enter city">
+      <div *ngIf="abcsForm.get('city')?.touched && abcsForm.get('city')?.invalid" class="text-danger">
+        City is required.
+      </div>
+    </div>
+
+    <!-- Area -->
+    <div class="form-group">
+      <label>Area</label>
+      <input type="text" formControlName="area" class="form-control" placeholder="Enter area">
+      <div *ngIf="abcsForm.get('area')?.touched && abcsForm.get('area')?.invalid" class="text-danger">
+        Area is required.
+      </div>
+    </div>
+
+    <!-- Pincode -->
+    <div class="form-group">
+      <label>Pincode</label>
+      <input type="text" formControlName="pincode" class="form-control" placeholder="Enter 6-digit pincode">
+      <div *ngIf="abcsForm.get('pincode')?.touched && abcsForm.get('pincode')?.invalid" class="text-danger">
+        Enter a valid 6-digit pincode.
+      </div>
+    </div>
+
+    <!-- Contact Number -->
+    <div class="form-group">
+      <label>Contact Number</label>
+      <input type="text" formControlName="contactNumber" class="form-control" placeholder="Enter 10-digit contact number">
+      <div *ngIf="abcsForm.get('contactNumber')?.touched && abcsForm.get('contactNumber')?.invalid" class="text-danger">
+        Enter a valid 10-digit contact number.
+      </div>
+    </div>
+
+    <!-- Latitude -->
+    <div class="form-group">
+      <label>Latitude</label>
+      <input type="text" formControlName="lat" class="form-control" placeholder="Enter latitude">
+      <div *ngIf="abcsForm.get('lat')?.touched && abcsForm.get('lat')?.invalid" class="text-danger">
+        Enter a valid latitude.
+      </div>
+    </div>
+
+    <!-- Longitude -->
+    <div class="form-group">
+      <label>Longitude</label>
+      <input type="text" formControlName="lng" class="form-control" placeholder="Enter longitude">
+      <div *ngIf="abcsForm.get('lng')?.touched && abcsForm.get('lng')?.invalid" class="text-danger">
+        Enter a valid longitude.
+      </div>
+    </div>
+
+    <!-- Map Preview -->
+    <div class="form-group">
+      <label>Map Preview</label>
+      <app-map 
+        [lat]="abcsForm.get('lat')?.value || 0" 
+        [lng]="abcsForm.get('lng')?.value || 0" 
+        [zoom]="15">
+      </app-map>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary mt-3" [disabled]="abcsForm.invalid">Add ABC</button>
+    
   </form>
-  
+</div>

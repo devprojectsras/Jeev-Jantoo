@@ -1,5 +1,6 @@
-// src/app/shared/map/map.component.ts
 import { Component, Input, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+
+declare var google: any; // <-- Add this line
 
 @Component({
   selector: 'app-map',
@@ -14,7 +15,7 @@ export class MapComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     if (this.lat && this.lng) {
-      const coords = new google.maps.LatLng(this.lat, this.lng);//Cannot find name 'google'
+      const coords = new google.maps.LatLng(this.lat, this.lng);
       const map = new google.maps.Map(this.mapContainer.nativeElement, {
         center: coords,
         zoom: this.zoom
