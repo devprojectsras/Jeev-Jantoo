@@ -23,6 +23,20 @@ export class AddNewAbcComponent implements OnInit {
     private toastService: ToastrService
   ) {}
 
+  ngOnInit(): void {
+    this.abcsForm = this.fb.group({
+      personIncharge: ['', Validators.required],
+      type: ['', Validators.required],
+      state: ['', Validators.required],
+      city: ['', Validators.required],
+      area: ['', Validators.required],
+      pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
+      contactNumber: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]], // added
+      lat: ['', [Validators.required, Validators.pattern('^-?\\d+(\\.\\d+)?$')]],    // added
+      lng: ['', [Validators.required, Validators.pattern('^-?\\d+(\\.\\d+)?$')]],    // added
+    });
+  }
+
   showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {
     const currentTime = new Date().toLocaleTimeString();
     const fullTitle = `${title}  ${currentTime}`;
@@ -35,53 +49,39 @@ export class AddNewAbcComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    this.abcsForm = this.fb.group({
-      personIncharge: ['', Validators.required],
-      type: ['', Validators.required],
-      state: ['', Validators.required],
-      city: ['', Validators.required],
-      area: ['', Validators.required],
-      pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
-      contactNumber: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]], // new field
-      lat: ['', [Validators.required, Validators.pattern('^-?\\d+(\\.\\d+)?$')]],    // new field
-      lng: ['', [Validators.required, Validators.pattern('^-?\\d+(\\.\\d+)?$')]],    // new field
-    });
-  }
-
   onSubmit(): void {
-    if (this.abcsForm.valid) {
-      const formValue = this.abcsForm.value;
-
-      const abcsData = {
-        personIncharge: formValue.personIncharge,
-        type: formValue.type,
-        state: formValue.state,
-        city: formValue.city,
-        area: formValue.area,
-        pincode: formValue.pincode,
-        contactNumber: formValue.contactNumber, // added
-        lat: parseFloat(formValue.lat),         // added
-        lng: parseFloat(formValue.lng),         // added
-        status: "Active",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-
-      const docID = uuidv4();
-
-      this.firebaseService
-        .addInformation(docID, abcsData, "abcs")
-        .then((response) => {
-          this.showToast("Success", `ABCs "${formValue.personIncharge}" added successfully!`, 'Success');
-          this.abcsForm.reset();
-        })
-        .catch((error) => {
-          console.error('Error saving ABCs:', error);
-          this.showToast("Error", `Failed to add ABCs "${formValue.personIncharge}". Please try again.`, "Error");
-        });
-    } else {
+    if (!this.abcsForm.valid) {
       console.log('Form is not valid');
+      return;
     }
+
+    const formValue = this.abcsForm.value;
+
+    const abcsData = {
+      personIncharge: formValue.personIncharge,
+      type: formValue.type,
+      state: formValue.state,
+      city: formValue.city,
+      area: formValue.area,
+      pincode: formValue.pincode,
+      contactNumber: formValue.contactNumber,    // included
+      lat: parseFloat(formValue.lat),            // included
+      lng: parseFloat(formValue.lng),            // included
+      status: "Active",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    const docID = uuidv4();
+
+    this.firebaseService.addInformation(docID, abcsData, "abcs")
+      .then(() => {
+        this.showToast("Success", `ABCs "${formValue.personIncharge}" added successfully!`, 'Success');
+        this.abcsForm.reset();
+      })
+      .catch((error) => {
+        console.error('Error saving ABCs:', error);
+        this.showToast("Error", `Failed to add ABCs "${formValue.personIncharge}". Please try again.`, "Error");
+      });
   }
 }

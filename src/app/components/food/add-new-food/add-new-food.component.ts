@@ -27,47 +27,49 @@ export class AddNewFeedingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.feedingForm = this.fb.group({
-      name: ['', Validators.required],
-      individual: ['', Validators.required],
-      contact: ['', Validators.required],
-      address: ['', Validators.required],
-      food_items: ['', Validators.required],
-      remarks: ['']
-    });
-  }
+  this.feedingForm = this.fb.group({
+    name: ['', Validators.required],
+    individual: ['', Validators.required],
+    contact: ['', Validators.required],
+    address: ['', Validators.required],
+    food_items: ['', Validators.required],
+    remarks: [''],
+    lat: [''],   
+    lng: ['']    
+  });
+}
 
   onSubmit(): void {
-    if (this.feedingForm.valid) {
-      const formValue = this.feedingForm.value;
-      const feedingData = {
-  id: uuidv4(),
-  name: formValue.name,
-  individual: formValue.individual,
-  contact: formValue.contact,
-  address: formValue.address,
-  food_items: formValue.food_items.split('\n'), // convert each line into an array
-  remarks: formValue.remarks,
-  lat: formValue.lat || null,
-  lng: formValue.lng || null,
-  status: 'Active',
-  createdAt: Date.now(),
-  updatedAt: Date.now()
-};
+  if (this.feedingForm.valid) {
+    const formValue = this.feedingForm.value;
+    const feedingData = {
+      id: uuidv4(),
+      name: formValue.name,
+      individual: formValue.individual,
+      contact: formValue.contact,
+      address: formValue.address,
+      food_items: formValue.food_items.split('\n'),
+      remarks: formValue.remarks,
+      lat: formValue.lat || null,   // ✅ now captured
+      lng: formValue.lng || null,   // ✅ now captured
+      status: 'Active',
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
 
       this.firebaseService.addInformation(feedingData.id, feedingData, 'food')
-        .then(() => {
-          this.toastService.success(`Feeding entry for "${formValue.name}" added successfully!`);
-          this.feedingForm.reset();
-        })
-        .catch(err => {
-          console.error(err);
-          this.toastService.error(`Failed to add Feeding entry for "${formValue.name}".`);
-        });
-    } else {
-      this.toastService.error('Please fill all required fields.');
-    }
+      .then(() => {
+        this.toastService.success(`Feeding entry for "${formValue.name}" added successfully!`);
+        this.feedingForm.reset();
+      })
+      .catch(err => {
+        console.error(err);
+        this.toastService.error(`Failed to add Feeding entry for "${formValue.name}".`);
+      });
+  } else {
+    this.toastService.error('Please fill all required fields.');
   }
+}
 
  
 }

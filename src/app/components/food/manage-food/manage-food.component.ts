@@ -1,6 +1,4 @@
-declare var bootstrap: any;
-
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -14,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './manage-food.component.html',
   styleUrls: ['./manage-food.component.scss']
 })
-export class ManageFoodComponent implements OnInit, AfterViewInit {
+export class ManageFoodComponent implements OnInit {
   foods: any[] = [];
   paginatedFoods: any[] = [];
   currentPage: number = 1;
@@ -22,11 +20,9 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
   totalPages: number = 0;
   rowsPerPageOptions = [5, 10, 15, 20];
 
-  selectedFood: any = null;
-  foodToDelete: any = null;
+  selectedFood: any = null;   // for edit modal
+  foodToDelete: any = null;   // for delete modal
   editFoodForm: FormGroup;
-
-  private deleteModal: any;
 
   constructor(
     private firebaseService: FirebaseService,
@@ -35,10 +31,13 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
   ) {
     this.editFoodForm = this.fb.group({
       name: ['', Validators.required],
-      type: ['', Validators.required],
-      quantity: ['', Validators.required],
-      remarks: [''],
-      status: ['', Validators.required]
+      individual: ['', Validators.required],
+      contact: ['', Validators.required],
+      address: ['', Validators.required],
+      food_items: [''],
+      status: ['', Validators.required],
+      lat: [''],
+      lng: ['']
     });
   }
 
@@ -46,31 +45,21 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
     this.loadFoods();
   }
 
-  ngAfterViewInit(): void {
-    // Initialize Bootstrap modal
-    setTimeout(() => {
-      const modalElement = document.getElementById('deleteModal');
-      if (modalElement) {
-        this.deleteModal = new bootstrap.Modal(modalElement);
-      }
-    }, 0);
-
-    // Initialize Bootstrap dropdowns with custom Popper configuration
-    const dropdowns = document.querySelectorAll('.dropdown-toggle');
-    dropdowns.forEach((dropdown) => {
-      new bootstrap.Dropdown(dropdown, {
-        popperConfig: {
-          placement: 'bottom-end',
-          strategy: 'fixed'
-        }
-      });
-    });
-  }
-
   async loadFoods(): Promise<void> {
     try {
       this.foods = await this.firebaseService.getInformation('food');
       if (!Array.isArray(this.foods)) this.foods = [];
+
+      // normalize food_items
+      this.foods = this.foods.map(food => ({
+        ...food,
+        food_items: Array.isArray(food.food_items)
+          ? food.food_items
+          : food.food_items
+            ? [food.food_items]
+            : []
+      }));
+
       this.updatePagination();
     } catch (error) {
       console.error(error);
@@ -100,18 +89,10 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
     const currentTime = new Date().toLocaleTimeString();
     const fullTitle = `${title} ${currentTime}`;
     switch (type) {
-      case 'Success':
-        this.toastService.success(fullTitle, message);
-        break;
-      case 'Error':
-        this.toastService.error(fullTitle, message);
-        break;
-      case 'Info':
-        this.toastService.info(fullTitle, message);
-        break;
-      case 'Warning':
-        this.toastService.warning(fullTitle, message);
-        break;
+      case 'Success': this.toastService.success(message, fullTitle); break;
+      case 'Error': this.toastService.error(message, fullTitle); break;
+      case 'Info': this.toastService.info(message, fullTitle); break;
+      case 'Warning': this.toastService.warning(message, fullTitle); break;
     }
   }
 
@@ -126,9 +107,13 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
       });
   }
 
+  // ---- Edit Modal ----
   openEditForm(food: any): void {
     this.selectedFood = { ...food };
-    this.editFoodForm.patchValue(food);
+    this.editFoodForm.patchValue({
+      ...food,
+      food_items: food.food_items.join(', ')
+    });
   }
 
   closeEditForm(): void {
@@ -138,11 +123,11 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
 
   async saveFood(): Promise<void> {
     if (this.editFoodForm.valid && this.selectedFood) {
-      const updatedData: any = { updatedAt: Date.now() };
-      for (const key in this.editFoodForm.value) {
-        if (this.editFoodForm.value[key] !== this.selectedFood[key]) {
-          updatedData[key] = this.editFoodForm.value[key];
-        }
+      const updatedData: any = { updatedAt: Date.now(), ...this.editFoodForm.value };
+
+      // Convert food_items back to array
+      if (typeof updatedData.food_items === 'string') {
+        updatedData.food_items = updatedData.food_items.split(',').map((i: string) => i.trim());
       }
 
       try {
@@ -159,17 +144,12 @@ export class ManageFoodComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // ---- Delete Modal ----
   openDeleteModal(food: any): void {
     this.foodToDelete = food;
-    if (this.deleteModal) {
-      this.deleteModal.show();
-    }
   }
 
   closeDeleteModal(): void {
-    if (this.deleteModal) {
-      this.deleteModal.hide();
-    }
     this.foodToDelete = null;
   }
 
