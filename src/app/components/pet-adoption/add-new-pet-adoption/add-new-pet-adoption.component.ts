@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FirebaseService } from '../../../services/firebase.service';
 import { CommonModule } from '@angular/common';
 import { v4 as uuidv4 } from 'uuid';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -15,34 +15,14 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AddNewPetAdoptionComponent implements OnInit {
   petAdoptionForm!: FormGroup;
+  selectedFiles: File[] = [];  // 📌 multiple optional photos
 
   constructor(
     private fb: FormBuilder,
     private firebaseService: FirebaseService,
-    private toastService: ToastrService
+    private toastService: ToastrService,
+    private router: Router
   ) {}
-
-  showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {
-    const currentTime = new Date().toLocaleTimeString();
-    const fullTitle = `${title}  ${currentTime}`;
-
-    switch (type) {
-      case 'Success':
-        this.toastService.success(fullTitle, message);
-        break;
-      case 'Error':
-        this.toastService.error(fullTitle, message);
-        break;
-      case 'Info':
-        this.toastService.info(fullTitle, message);
-        break;
-      case 'Warning':
-        this.toastService.warning(fullTitle, message);
-        break;
-      default:
-        console.error('Invalid toast type');
-    }
-  }
 
   ngOnInit(): void {
     this.petAdoptionForm = this.fb.group({
@@ -58,40 +38,79 @@ export class AddNewPetAdoptionComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (this.petAdoptionForm.valid) {
-      const formValue = this.petAdoptionForm.value;
+  // 📷 file select method (multiple)
+  onFileSelected(event: any): void {
+    this.selectedFiles = Array.from(event.target.files); // multiple photos
+  }
+
+  private showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {
+    const currentTime = new Date().toLocaleTimeString();
+    const fullTitle = `${title} - ${currentTime}`;
+
+    switch (type) {
+      case 'Success':
+        this.toastService.success(message, fullTitle);
+        break;
+      case 'Error':
+        this.toastService.error(message, fullTitle);
+        break;
+      case 'Info':
+        this.toastService.info(message, fullTitle);
+        break;
+      case 'Warning':
+        this.toastService.warning(message, fullTitle);
+        break;
+    }
+  }
+
+  async onSubmit(): Promise<void> {
+    if (!this.petAdoptionForm.valid) {
+      this.showToast("Warning", "Form Invalid", "Please fill all required fields correctly.");
+      return;
+    }
+
+    const formValue = { ...this.petAdoptionForm.value };
+
+    // Trim strings
+    Object.keys(formValue).forEach(key => {
+      if (typeof formValue[key] === 'string') {
+        formValue[key] = formValue[key].trim();
+      }
+    });
+
+    const docID = uuidv4();
+    let photoUrls: string[] = [];
+
+    try {
+      // 📤 Upload photos if selected
+      if (this.selectedFiles.length > 0) {
+        for (const file of this.selectedFiles) {
+          const path = `pet-photos/${docID}/${file.name}`;
+          const url = await this.firebaseService.uploadFile(path, file);
+          photoUrls.push(url);
+        }
+      }
+
       const petAdoptionData = {
-        petName: formValue.petName,
-        species: formValue.species,
-        breed: formValue.breed,
-        age: formValue.age,
-        gender: formValue.gender,
-        healthStatus: formValue.healthStatus,
-        contact: formValue.contact,
-        location: formValue.location,
-        description: formValue.description,
-        status: "Active",
-        createdAt: Date.now(),
-        updatedAt: Date.now()
+        ...formValue,
+        photos: photoUrls,         // ✅ multiple/optional photos
+        status: "Active",          // ✅ always active for admin
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
-      const docID = uuidv4();
+      await this.firebaseService.addInformation(docID, petAdoptionData, "pet-adoption");
 
-      this.firebaseService
-        .addInformation(docID, petAdoptionData, "pet-adoption")
-        .then((response) => {
-          console.log('Pet adoption added successfully with ID:', response);
-          this.petAdoptionForm.reset();
-          this.showToast("Success", `Pet "${formValue.petName}" added successfully!`, 'Success');
-        })
-        .catch((error) => {
-          console.error('Error saving pet adoption:', error);
-          this.showToast("Error", `Failed to add pet "${formValue.petName}". Please try again.`, "Error");
-        });
-      console.log('Form Data:', petAdoptionData);
-    } else {
-      console.log('Form is not valid');
+      this.petAdoptionForm.reset();
+      this.petAdoptionForm.markAsPristine();
+      this.petAdoptionForm.markAsUntouched();
+      this.selectedFiles = [];
+
+      this.showToast("Success", "Pet Added", `Pet "${formValue.petName}" added successfully!`);
+      this.router.navigate(['/manage-pet-adoption']);
+    } catch (error) {
+      console.error('Error saving pet adoption:', error);
+      this.showToast("Error", "Save Failed", `Failed to add pet "${formValue.petName}". Please try again.`);
     }
   }
 }

@@ -198,7 +198,34 @@ export class FirebaseService {
     }
   }
 
-  
+  async addAdoption(data: any, file?: File): Promise<any> {
+  try {
+    let photoURL = '';
+
+    // Agar file diya gaya hai tabhi upload hoga
+    if (file) {
+      const path = `pet-photos/${Date.now()}_${file.name}`;
+      photoURL = await this.uploadFile(path, file);
+    }
+
+    const adoptionData = {
+      ...data,
+      status: 'active', // default active for admin
+      photoURL: photoURL || '', // optional photo
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    // Firestore me add karna
+    const docRef = await addDoc(collection(this.db, 'adoptions'), adoptionData);
+    console.log('Adoption added with ID:', docRef.id);
+    return { id: docRef.id, ...adoptionData };
+  } catch (error) {
+    console.error('Error adding adoption:', error);
+    throw error;
+  }
+}
+
   
 }
 

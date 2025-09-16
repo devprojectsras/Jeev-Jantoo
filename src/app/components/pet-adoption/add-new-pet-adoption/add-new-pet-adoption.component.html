@@ -4,10 +4,12 @@
       <div class="text-center text-md-start mb-2 mb-md-0">
         <h4>New Pet Adoption</h4>
       </div>
-      <button type="button" class="btn col-md-3 col-12 btn-outline-primary" [routerLink]="['/manage-pet-adoption']">Manage Pet Adoptions</button>
+      <button type="button" class="btn col-md-3 col-12 btn-outline-primary" 
+              [routerLink]="['/manage-pet-adoption']">Manage Pet Adoptions</button>
     </div>
 
     <div class="row g-2">
+      <!-- Pet Name -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="petName" formControlName="petName" placeholder="Buddy" required>
         <label for="petName">Pet Name <span class="text-danger">*</span></label>
@@ -16,6 +18,7 @@
         </div>
       </div>
 
+      <!-- Species -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <select class="form-select" id="species" formControlName="species" required>
           <option value="" disabled>Select a species</option>
@@ -29,6 +32,7 @@
         </div>
       </div>
 
+      <!-- Breed -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="breed" formControlName="breed" placeholder="Labrador" required>
         <label for="breed">Breed <span class="text-danger">*</span></label>
@@ -37,6 +41,7 @@
         </div>
       </div>
 
+      <!-- Age -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="number" class="form-control" id="age" formControlName="age" placeholder="2" required>
         <label for="age">Age (in years) <span class="text-danger">*</span></label>
@@ -45,6 +50,7 @@
         </div>
       </div>
 
+      <!-- Gender -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <select class="form-select" id="gender" formControlName="gender" required>
           <option value="" disabled>Select a gender</option>
@@ -57,6 +63,7 @@
         </div>
       </div>
 
+      <!-- Health Status -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <select class="form-select" id="healthStatus" formControlName="healthStatus" required>
           <option value="" disabled>Select health status</option>
@@ -70,6 +77,7 @@
         </div>
       </div>
 
+      <!-- Contact -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="contact" formControlName="contact" placeholder="7845129632" required>
         <label for="contact">Contact <span class="text-danger">*</span></label>
@@ -78,6 +86,7 @@
         </div>
       </div>
 
+      <!-- Location -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <input type="text" class="form-control" id="location" formControlName="location" placeholder="Bhopal" required>
         <label for="location">Location <span class="text-danger">*</span></label>
@@ -86,11 +95,19 @@
         </div>
       </div>
 
+      <!-- Description -->
       <div class="form-floating col-md-12 col-12 mb-3">
         <textarea class="form-control" id="description" formControlName="description" placeholder="Describe the pet" maxlength="255"></textarea>
         <label for="description">Description</label>
       </div>
 
+      <!-- Photo Upload (Optional) -->
+      <div class="col-md-12 col-12 mb-3">
+        <label for="photo">Pet Photo (Optional)</label>
+        <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)">
+      </div>
+
+      <!-- Submit -->
       <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="petAdoptionForm.invalid">
         Submit
       </button>
