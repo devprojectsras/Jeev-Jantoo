@@ -15,50 +15,67 @@
           <th>Age</th>
           <th>Description</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th style="width:72px;">Actions</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let adoption of paginatedAdoptions">
-          <td>{{ adoption.petName }}</td>
-          <td>{{ adoption.species }}</td>
-          <td>{{ adoption.age }}</td>
-          <td>{{ adoption.description }}</td>
+        <!-- unique index for dropdown ids -->
+        <tr *ngFor="let adoption of paginatedAdoptions; let i = index; trackBy: trackById">
+          <td>{{ adoption.petName || '-' }}</td>
+          <td>{{ adoption.species || adoption.petType || '-' }}</td>
+          <td>{{ adoption.age ?? '-' }}</td>
+
+          <!-- truncate long text -->
+          <td class="text-truncate" style="max-width: 380px;">
+            {{ adoption.description || adoption.details || '-' }}
+          </td>
+
           <td>
             <div class="d-flex align-items-center">
+              <!-- pill uses safe derived status -->
               <span
-  class="badge me-2"
-  [ngClass]="{
-    'bg-success': adoption.status === 'Active',
-    'bg-danger': adoption.status === 'Inactive',
-    'bg-warning': adoption.status === 'Pending'
-  }"
->
-  {{ adoption.status }}
-</span>
+                class="badge me-2"
+                [ngClass]="{
+                  'bg-success': (adoption.status || (adoption.active ? 'Active' : 'Pending')) === 'Active',
+                  'bg-danger' : (adoption.status || (adoption.active ? 'Active' : 'Pending')) === 'Inactive',
+                  'bg-warning': (adoption.status || (adoption.active ? 'Active' : 'Pending')) === 'Pending'
+                }"
+              >
+                {{ adoption.status || (adoption.active ? 'Active' : 'Pending') }}
+              </span>
 
-              <div class="form-check form-switch">
+              <div class="form-check form-switch mb-0">
+                <!-- switch reflects same derived value -->
                 <input
-  type="checkbox"
-  class="form-check-input"
-  [checked]="adoption.status === 'Active'"
-  (change)="onStatusToggle(adoption)"
-/>
-
+                  type="checkbox"
+                  class="form-check-input"
+                  role="switch"
+                  [checked]="(adoption.status || (adoption.active ? 'Active' : 'Inactive')) === 'Active'"
+                  (change)="onStatusToggle(adoption)"
+                  [attr.aria-label]="'Toggle status for ' + (adoption.petName || 'adoption')"
+                />
               </div>
             </div>
           </td>
-          <td>
+
+          <td class="text-center">
             <div class="dropdown">
               <button
                 class="btn p-0 dropdown-toggle hide-arrow"
                 type="button"
+                id="actionsMenu{{ i }}"
                 data-bs-toggle="dropdown"
+                data-bs-display="static"
                 aria-expanded="false"
               >
-                <i class="bx bx-dots-vertical-rounded"></i>
+                <i class="bx bx-dots-vertical-rounded fs-5"></i>
               </button>
-              <ul class="dropdown-menu">
+
+              <!-- align to end -->
+              <ul class="dropdown-menu dropdown-menu-end"
+                  [attr.aria-labelledby]="'actionsMenu' + i"
+                  (click)="$event.stopPropagation()">
                 <li>
                   <a class="dropdown-item" href="javascript:void(0);" (click)="openEditForm(adoption)">
                     <i class="bx bx-edit-alt me-1"></i> Edit
@@ -71,6 +88,13 @@
                 </li>
               </ul>
             </div>
+          </td>
+        </tr>
+
+        <!-- empty state -->
+        <tr *ngIf="!paginatedAdoptions?.length">
+          <td colspan="6" class="text-center text-muted py-4">
+            No adoptions found.
           </td>
         </tr>
       </tbody>
@@ -125,19 +149,23 @@
               <input type="text" class="form-control" id="petName" formControlName="petName" placeholder="Pet Name" />
               <label for="petName">Pet Name <span class="text-danger">*</span></label>
             </div>
+
+            <!-- bind to 'species' -->
             <div class="form-floating col-md-6 col-12">
-              <select class="form-select" id="petType" formControlName="petType">
+              <select class="form-select" id="species" formControlName="species">
                 <option value="" disabled>Select Pet Type</option>
                 <option value="dog">Dog</option>
                 <option value="cat">Cat</option>
                 <option value="other">Other</option>
               </select>
-              <label for="petType">Pet Type <span class="text-danger">*</span></label>
+              <label for="species">Pet Type <span class="text-danger">*</span></label>
             </div>
+
             <div class="form-floating col-md-6 col-12">
               <input type="number" class="form-control" id="age" formControlName="age" placeholder="Age" min="0" />
               <label for="age">Age <span class="text-danger">*</span></label>
             </div>
+
             <div class="form-floating col-md-6 col-12">
               <textarea class="form-control" id="description" formControlName="description" placeholder="Description"></textarea>
               <label for="description">Description</label>
@@ -145,6 +173,7 @@
           </div>
         </form>
       </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeEditForm()">Cancel</button>
         <button type="button" class="btn btn-primary" (click)="saveAdoption()">Save</button>

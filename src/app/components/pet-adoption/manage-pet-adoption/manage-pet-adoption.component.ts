@@ -37,7 +37,7 @@ export class ManageAdoptionComponent implements OnInit {
       species: ['', Validators.required],
       age: ['', [Validators.required, Validators.min(0)]],
       description: [''],
-      status: ['Pending', Validators.required] // default status Pending
+      status: ['Pending', Validators.required] // default status
     });
   }
 
@@ -45,10 +45,34 @@ export class ManageAdoptionComponent implements OnInit {
     await this.loadAdoptions();
   }
 
+  // ---------- NORMALIZATION ----------
+  private normalizeAdoption = (a: any) => {
+    const species = (a?.species ?? a?.petType ?? '').toString().toLowerCase();
+    const description = a?.description ?? a?.details ?? '';
+    const status =
+      a?.status ??
+      (a?.active === true ? 'Active' : a?.active === false ? 'Inactive' : 'Pending');
+
+    return {
+      ...a,
+      species,
+      description,
+      status
+    };
+  };
+
+  private currentStatus(a: any): 'Active' | 'Inactive' | 'Pending' {
+    if (a?.status) return a.status;
+    if (a?.active === true) return 'Active';
+    if (a?.active === false) return 'Inactive';
+    return 'Pending';
+  }
+
   // ---------- LOAD DATA ----------
   async loadAdoptions(): Promise<void> {
     try {
-      this.adoptions = await this.firebaseService.getInformation('pet-adoption');
+      const raw = await this.firebaseService.getInformation('pet-adoption');
+      this.adoptions = (raw || []).map(this.normalizeAdoption);
       this.updatePagination();
     } catch (error) {
       console.error('Error fetching adoption data:', error);
@@ -58,7 +82,8 @@ export class ManageAdoptionComponent implements OnInit {
 
   // ---------- PAGINATION ----------
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.adoptions.length / this.rowsPerPage);
+    this.totalPages = Math.max(1, Math.ceil(this.adoptions.length / this.rowsPerPage));
+    if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
     const startIndex = (this.currentPage - 1) * this.rowsPerPage;
     const endIndex = startIndex + this.rowsPerPage;
     this.paginatedAdoptions = this.adoptions.slice(startIndex, endIndex);
@@ -74,6 +99,8 @@ export class ManageAdoptionComponent implements OnInit {
     this.currentPage = page;
     this.updatePagination();
   }
+
+  trackById = (_: number, item: any) => item?.id ?? item;
 
   // ---------- DELETE ----------
   openDeleteModal(adoption: any): void {
@@ -98,15 +125,21 @@ export class ManageAdoptionComponent implements OnInit {
     } catch (error) {
       console.error('Error deleting adoption:', error);
       this.showToast('Error', 'Delete Failed', 'Failed to delete adoption.');
+    } finally {
+      this.closeDeleteModal();
     }
-
-    this.closeDeleteModal();
   }
 
   // ---------- EDIT ----------
   openEditForm(adoption: any): void {
-    this.selectedAdoption = { ...adoption };
-    this.editAdoptionForm.patchValue(adoption);
+    this.selectedAdoption = this.normalizeAdoption(adoption);
+    this.editAdoptionForm.patchValue({
+      petName: this.selectedAdoption.petName ?? '',
+      species: this.selectedAdoption.species ?? '',
+      age: this.selectedAdoption.age ?? '',
+      description: this.selectedAdoption.description ?? '',
+      status: this.selectedAdoption.status ?? 'Pending'
+    });
     const editModal = new bootstrap.Modal(document.getElementById('editModal')!);
     editModal.show();
   }
@@ -130,6 +163,11 @@ export class ManageAdoptionComponent implements OnInit {
         if (value !== this.selectedAdoption[key]) updatedData[key] = value;
       });
 
+      // keep boolean 'active' in sync if your backend uses it
+      if ('status' in updatedData) {
+        updatedData.active = updatedData.status === 'Active';
+      }
+
       await this.firebaseService.editInformation('pet-adoption', this.selectedAdoption.id, updatedData);
       this.showToast('Success', 'Updated', 'Adoption updated successfully!');
       this.closeEditForm();
@@ -142,33 +180,33 @@ export class ManageAdoptionComponent implements OnInit {
 
   // ---------- STATUS TOGGLE ----------
   onStatusToggle(adoption: any): void {
-    let newStatus = '';
+    const cur = this.currentStatus(adoption);
+    const next = cur === 'Pending' ? 'Active' : cur === 'Active' ? 'Inactive' : 'Active';
 
-    if (adoption.status === 'Pending') {
-      newStatus = 'Active'; // Allow Pending → Active
-    } else if (adoption.status === 'Active') {
-      newStatus = 'Inactive';
-    } else if (adoption.status === 'Inactive') {
-      newStatus = 'Active';
-    }
+    // optimistic UI (sync both fields)
+    adoption.status = next;
+    adoption.active = next === 'Active';
 
-    // Update locally
-    adoption.status = newStatus;
-
-    // Update in Firebase
-    this.updateAdoptionStatus(adoption.id, newStatus);
-
-    // Show toast
-    this.showToast('Success', 'Status Updated', `Adoption status changed to ${newStatus}`);
+    this.updateAdoptionStatus(adoption.id, next);
+    this.showToast('Success', 'Status Updated', `Adoption status changed to ${next}`);
   }
 
   async updateAdoptionStatus(adoptionId: string, status: string): Promise<void> {
     try {
-      await this.firebaseService.updateStatus('pet-adoption', adoptionId, status);
-      console.log(`Adoption ${adoptionId} status updated to ${status}`);
+      if (this.firebaseService.updateStatus) {
+        await this.firebaseService.updateStatus('pet-adoption', adoptionId, status);
+      } else {
+        await this.firebaseService.editInformation('pet-adoption', adoptionId, {
+          status,
+          active: status === 'Active',
+          updatedAt: Date.now()
+        });
+      }
     } catch (error) {
       console.error(`Error updating status for adoption ${adoptionId}`, error);
       this.showToast('Error', 'Update Failed', 'Failed to update adoption status.');
+      // reload to avoid UI drift
+      await this.loadAdoptions();
     }
   }
 
@@ -185,5 +223,4 @@ export class ManageAdoptionComponent implements OnInit {
       default: console.error('Invalid toast type');
     }
   }
-
 }
