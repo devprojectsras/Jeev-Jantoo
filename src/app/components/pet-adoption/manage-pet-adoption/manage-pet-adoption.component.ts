@@ -22,6 +22,10 @@ export class ManageAdoptionComponent implements OnInit {
   selectedAdoption: any = null;
   adoptionToDelete: any = null;
 
+  // for photo editing
+  editNewFiles: File[] = [];
+  editRemovedUrls: string[] = [];
+
   currentPage = 1;
   rowsPerPage = 5;
   totalPages = 0;
@@ -34,10 +38,11 @@ export class ManageAdoptionComponent implements OnInit {
   ) {
     this.editAdoptionForm = this.fb.group({
       petName: ['', Validators.required],
-      species: ['', Validators.required],
-      age: ['', [Validators.required, Validators.min(0)]],
+      species: ['', Validators.required],       // code: dog/cat/bird/fish/rabbit/other
+      ageYears: [null, [Validators.min(0)]],
+      ageMonths: [null, [Validators.min(0), Validators.max(11)]],
       description: [''],
-      status: ['Pending', Validators.required] // default status
+      status: ['Pending', Validators.required]
     });
   }
 
@@ -45,19 +50,74 @@ export class ManageAdoptionComponent implements OnInit {
     await this.loadAdoptions();
   }
 
-  // ---------- NORMALIZATION ----------
+  // ---------- HELPERS ----------
+  private normalizeSpecies(val: any): string {
+    const s = String(val || '').toLowerCase();
+    if (s.includes('dog')) return 'dog';
+    if (s.includes('cat')) return 'cat';
+    if (s.includes('bird')) return 'bird';
+    if (s.includes('fish')) return 'fish';
+    if (s.includes('rabbit')) return 'rabbit';
+    return 'other';
+  }
+
+  speciesLabel(s: any): string {
+    const code = this.normalizeSpecies(s);
+    switch (code) {
+      case 'dog': return 'Dog';
+      case 'cat': return 'Cat';
+      case 'bird': return 'Bird';
+      case 'fish': return 'Fish';
+      case 'rabbit': return 'Rabbit';
+      default: return 'Other';
+    }
+  }
+
+  private toDisplayAge(a: any): string {
+    let m = typeof a?.ageInMonths === 'number'
+      ? a.ageInMonths
+      : (Number(a?.ageYears) || 0) * 12 + (Number(a?.ageMonths) || 0);
+
+    if ((!m || m <= 0) && typeof a?.age === 'number') {
+      m = Math.max(0, Math.floor(a.age * 12)); // legacy 'age' in years
+    }
+
+    const months = Math.max(0, Math.floor(m || 0));
+    const y = Math.floor(months / 12);
+    const mm = months % 12;
+    return y > 0 ? (mm > 0 ? `${y}y ${mm}m` : `${y}y`) : `${mm}m`;
+  }
+  displayAge = (a: any) => this.toDisplayAge(a);
+
   private normalizeAdoption = (a: any) => {
-    const species = (a?.species ?? a?.petType ?? '').toString().toLowerCase();
+    const species = this.normalizeSpecies(a?.species ?? a?.petType);
     const description = a?.description ?? a?.details ?? '';
+
+    let ageInMonths = a?.ageInMonths;
+    if (typeof ageInMonths !== 'number') {
+      const yrs = Number(a?.ageYears) || 0;
+      const mos = Number(a?.ageMonths) || 0;
+      ageInMonths = yrs * 12 + mos;
+      if ((!ageInMonths || ageInMonths <= 0) && typeof a?.age === 'number') {
+        ageInMonths = Math.max(0, Math.floor(a.age * 12));
+      }
+    }
+
     const status =
       a?.status ??
       (a?.active === true ? 'Active' : a?.active === false ? 'Inactive' : 'Pending');
+
+    // ensure photos array
+    let photos = a?.photos;
+    if (!Array.isArray(photos)) photos = photos ? [photos] : [];
 
     return {
       ...a,
       species,
       description,
-      status
+      ageInMonths,
+      status,
+      photos
     };
   };
 
@@ -68,7 +128,7 @@ export class ManageAdoptionComponent implements OnInit {
     return 'Pending';
   }
 
-  // ---------- LOAD DATA ----------
+  // ---------- LOAD ----------
   async loadAdoptions(): Promise<void> {
     try {
       const raw = await this.firebaseService.getInformation('pet-adoption');
@@ -88,18 +148,8 @@ export class ManageAdoptionComponent implements OnInit {
     const endIndex = startIndex + this.rowsPerPage;
     this.paginatedAdoptions = this.adoptions.slice(startIndex, endIndex);
   }
-
-  changeRowsPerPage(rows: number): void {
-    this.rowsPerPage = rows;
-    this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  changePage(page: number): void {
-    this.currentPage = page;
-    this.updatePagination();
-  }
-
+  changeRowsPerPage(rows: number): void { this.rowsPerPage = rows; this.currentPage = 1; this.updatePagination(); }
+  changePage(page: number): void { this.currentPage = page; this.updatePagination(); }
   trackById = (_: number, item: any) => item?.id ?? item;
 
   // ---------- DELETE ----------
@@ -108,16 +158,13 @@ export class ManageAdoptionComponent implements OnInit {
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal')!);
     deleteModal.show();
   }
-
   closeDeleteModal(): void {
     this.adoptionToDelete = null;
     const modalEl = document.getElementById('deleteModal');
     if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
   }
-
   async confirmDelete(): Promise<void> {
     if (!this.adoptionToDelete) return;
-
     try {
       await this.firebaseService.deleteInformation('pet-adoption', this.adoptionToDelete.id);
       this.showToast('Success', 'Deleted', 'Adoption deleted successfully!');
@@ -133,22 +180,54 @@ export class ManageAdoptionComponent implements OnInit {
   // ---------- EDIT ----------
   openEditForm(adoption: any): void {
     this.selectedAdoption = this.normalizeAdoption(adoption);
+
+    // derive Y/M from canonical months
+    const months = Math.max(0, Math.floor(this.selectedAdoption.ageInMonths || 0));
+    const ageYears = Math.floor(months / 12);
+    const ageMonths = months % 12;
+
     this.editAdoptionForm.patchValue({
       petName: this.selectedAdoption.petName ?? '',
       species: this.selectedAdoption.species ?? '',
-      age: this.selectedAdoption.age ?? '',
+      ageYears,
+      ageMonths,
       description: this.selectedAdoption.description ?? '',
       status: this.selectedAdoption.status ?? 'Pending'
     });
+
+    // reset photo edit state
+    this.editNewFiles = [];
+    this.editRemovedUrls = [];
+
     const editModal = new bootstrap.Modal(document.getElementById('editModal')!);
     editModal.show();
   }
-
   closeEditForm(): void {
     const editModalEl = document.getElementById('editModal');
     if (editModalEl) bootstrap.Modal.getInstance(editModalEl)?.hide();
     this.selectedAdoption = null;
     this.editAdoptionForm.reset();
+    this.editNewFiles = [];
+    this.editRemovedUrls = [];
+  }
+
+  onEditFilesSelected(ev: any) {
+    this.editNewFiles = Array.from(ev?.target?.files || []);
+  }
+  removeExistingPhoto(url: string) {
+    this.editRemovedUrls.push(url);
+    this.selectedAdoption.photos = (this.selectedAdoption.photos || []).filter((u: string) => u !== url);
+  }
+  removeNewFile(i: number) {
+    this.editNewFiles.splice(i, 1);
+  }
+  previewFile(file: File): string {
+    return URL.createObjectURL(file);
+  }
+  private safeName(file: File, i: number): string {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const base = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-z0-9_-]+/gi, '-').slice(0, 40);
+    return `${Date.now()}_${i}_${base}.${ext}`;
   }
 
   async saveAdoption(): Promise<void> {
@@ -158,17 +237,53 @@ export class ManageAdoptionComponent implements OnInit {
     }
 
     try {
-      const updatedData: any = { updatedAt: Date.now() };
-      Object.entries(this.editAdoptionForm.value).forEach(([key, value]) => {
-        if (value !== this.selectedAdoption[key]) updatedData[key] = value;
-      });
+      const val = this.editAdoptionForm.value;
+      const ageYears = Number(val.ageYears || 0);
+      const ageMonths = Number(val.ageMonths || 0);
+      const ageInMonths = ageYears * 12 + ageMonths;
 
-      // keep boolean 'active' in sync if your backend uses it
-      if ('status' in updatedData) {
-        updatedData.active = updatedData.status === 'Active';
+      const id = this.selectedAdoption.id;
+
+      // upload new files
+      const newUrls: string[] = [];
+      for (let i = 0; i < this.editNewFiles.length; i++) {
+        const f = this.editNewFiles[i];
+        const filename = this.safeName(f, i);
+        const path = `pet-photos/${id}/${filename}`;
+        // your service: uploadFile(path: string, file: File)
+        const url = await this.firebaseService.uploadFile(path, f);
+        newUrls.push(url);
       }
 
-      await this.firebaseService.editInformation('pet-adoption', this.selectedAdoption.id, updatedData);
+      // final merged photo list
+      const kept = this.selectedAdoption.photos || [];
+      const finalPhotos = [...kept, ...newUrls];
+
+      // optionally delete removed storage files if service supports it
+      if (this.editRemovedUrls.length && (this.firebaseService as any).deleteFileByUrl) {
+        for (const url of this.editRemovedUrls) {
+          try {
+            await (this.firebaseService as any).deleteFileByUrl(url);
+          } catch (e) {
+            console.warn('Failed to delete storage object for URL:', url, e);
+          }
+        }
+      }
+
+      const updatedData: any = {
+        petName: val.petName,
+        species: this.normalizeSpecies(val.species),
+        ageYears: val.ageYears ?? null,
+        ageMonths: val.ageMonths ?? null,
+        ageInMonths,
+        description: val.description ?? '',
+        status: val.status,
+        active: val.status === 'Active',
+        photos: finalPhotos,
+        updatedAt: Date.now()
+      };
+
+      await this.firebaseService.editInformation('pet-adoption', id, updatedData);
       this.showToast('Success', 'Updated', 'Adoption updated successfully!');
       this.closeEditForm();
       await this.loadAdoptions();
@@ -183,7 +298,6 @@ export class ManageAdoptionComponent implements OnInit {
     const cur = this.currentStatus(adoption);
     const next = cur === 'Pending' ? 'Active' : cur === 'Active' ? 'Inactive' : 'Active';
 
-    // optimistic UI (sync both fields)
     adoption.status = next;
     adoption.active = next === 'Active';
 
@@ -193,8 +307,8 @@ export class ManageAdoptionComponent implements OnInit {
 
   async updateAdoptionStatus(adoptionId: string, status: string): Promise<void> {
     try {
-      if (this.firebaseService.updateStatus) {
-        await this.firebaseService.updateStatus('pet-adoption', adoptionId, status);
+      if ((this.firebaseService as any).updateStatus) {
+        await (this.firebaseService as any).updateStatus('pet-adoption', adoptionId, status);
       } else {
         await this.firebaseService.editInformation('pet-adoption', adoptionId, {
           status,
@@ -205,7 +319,6 @@ export class ManageAdoptionComponent implements OnInit {
     } catch (error) {
       console.error(`Error updating status for adoption ${adoptionId}`, error);
       this.showToast('Error', 'Update Failed', 'Failed to update adoption status.');
-      // reload to avoid UI drift
       await this.loadAdoptions();
     }
   }
@@ -214,7 +327,6 @@ export class ManageAdoptionComponent implements OnInit {
   showToast(type: 'Success' | 'Error' | 'Info' | 'Warning', title: string, message: string) {
     const currentTime = new Date().toLocaleTimeString();
     const fullTitle = `${title} - ${currentTime}`;
-
     switch (type) {
       case 'Success': this.toastService.success(message, fullTitle); break;
       case 'Error': this.toastService.error(message, fullTitle); break;

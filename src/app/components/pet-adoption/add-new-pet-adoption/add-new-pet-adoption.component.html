@@ -18,13 +18,16 @@
         </div>
       </div>
 
-      <!-- Species -->
+      <!-- Species (codes) -->
       <div class="form-floating col-md-6 col-12 mb-3">
         <select class="form-select" id="species" formControlName="species" required>
           <option value="" disabled>Select a species</option>
-          <option value="Dog">Dog</option>
-          <option value="Cat">Cat</option>
-          <option value="Other">Other</option>
+          <option value="dog">Dog</option>
+          <option value="cat">Cat</option>
+          <option value="bird">Bird</option>
+          <option value="fish">Fish</option>
+          <option value="rabbit">Rabbit</option>
+          <option value="other">Other</option>
         </select>
         <label for="species">Species <span class="text-danger">*</span></label>
         <div *ngIf="petAdoptionForm.get('species')?.touched && petAdoptionForm.get('species')?.invalid" class="text-danger">
@@ -41,12 +44,23 @@
         </div>
       </div>
 
-      <!-- Age -->
-      <div class="form-floating col-md-6 col-12 mb-3">
-        <input type="number" class="form-control" id="age" formControlName="age" placeholder="2" required>
-        <label for="age">Age (in years) <span class="text-danger">*</span></label>
-        <div *ngIf="petAdoptionForm.get('age')?.touched && petAdoptionForm.get('age')?.invalid" class="text-danger">
-          Age is required and must be a number.
+      <!-- Age (Years + Months) -->
+      <div class="col-md-6 col-12 mb-3">
+        <div class="row g-2">
+          <div class="form-floating col-6">
+            <input type="number" class="form-control" id="ageYears" formControlName="ageYears" min="0" placeholder="0">
+            <label for="ageYears">Age (Years)</label>
+          </div>
+          <div class="form-floating col-6">
+            <input type="number" class="form-control" id="ageMonths" formControlName="ageMonths" min="0" max="11" placeholder="0">
+            <label for="ageMonths">Age (Months)</label>
+          </div>
+        </div>
+        <div class="text-danger mt-1" *ngIf="ageTouched() && petAdoptionForm.errors?.['ageRequired']">
+          Please enter at least one of Years or Months.
+        </div>
+        <div class="text-danger mt-1" *ngIf="ageTouched() && petAdoptionForm.errors?.['ageInvalid']">
+          Age must be non-negative numbers; months must be 0–11.
         </div>
       </div>
 
@@ -56,6 +70,7 @@
           <option value="" disabled>Select a gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
+          <option value="Unknown">Unknown</option>
         </select>
         <label for="gender">Gender <span class="text-danger">*</span></label>
         <div *ngIf="petAdoptionForm.get('gender')?.touched && petAdoptionForm.get('gender')?.invalid" class="text-danger">
@@ -101,16 +116,42 @@
         <label for="description">Description</label>
       </div>
 
-      <!-- Photo Upload (Optional) -->
+      <!-- Photos (Multiple) -->
       <div class="col-md-12 col-12 mb-3">
-        <label for="photo">Pet Photo (Optional)</label>
-        <input type="file" class="form-control" id="photo" (change)="onFileSelected($event)">
+        <label for="photo" class="form-label">Pet Photos (Optional)</label>
+        <input
+          type="file"
+          class="form-control"
+          id="photo"
+          (change)="onFileSelected($event)"
+          multiple
+          accept="image/*"
+        />
+        <div class="form-text" *ngIf="selectedFiles?.length">{{ selectedFiles.length }} image(s) selected</div>
+
+        <!-- Previews -->
+        <div class="d-flex flex-wrap gap-2 mt-2" *ngIf="selectedFiles?.length">
+          <div class="position-relative" *ngFor="let f of selectedFiles; let i = index">
+            <img [src]="previewFile(f)"
+                 alt="preview"
+                 class="rounded border"
+                 style="width:96px;height:96px;object-fit:cover" />
+            <button type="button"
+                    class="btn btn-sm btn-secondary position-absolute top-0 end-0 translate-middle badge rounded-pill"
+                    aria-label="Remove"
+                    (click)="removeNewFile(i)">
+              &times;
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Submit -->
-      <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="petAdoptionForm.invalid">
-        Submit
-      </button>
+      <div class="col-12">
+        <button type="submit" class="btn col-md-3 col-12 btn-primary" [disabled]="petAdoptionForm.invalid">
+          Submit
+        </button>
+      </div>
     </div>
   </div>
 </form>

@@ -20,20 +20,17 @@
       </thead>
 
       <tbody>
-        <!-- unique index for dropdown ids -->
         <tr *ngFor="let adoption of paginatedAdoptions; let i = index; trackBy: trackById">
           <td>{{ adoption.petName || '-' }}</td>
-          <td>{{ adoption.species || adoption.petType || '-' }}</td>
-          <td>{{ adoption.age ?? '-' }}</td>
+          <td>{{ speciesLabel(adoption.species || adoption.petType) }}</td>
+          <td>{{ displayAge(adoption) }}</td>
 
-          <!-- truncate long text -->
           <td class="text-truncate" style="max-width: 380px;">
             {{ adoption.description || adoption.details || '-' }}
           </td>
 
           <td>
             <div class="d-flex align-items-center">
-              <!-- pill uses safe derived status -->
               <span
                 class="badge me-2"
                 [ngClass]="{
@@ -46,7 +43,6 @@
               </span>
 
               <div class="form-check form-switch mb-0">
-                <!-- switch reflects same derived value -->
                 <input
                   type="checkbox"
                   class="form-check-input"
@@ -72,7 +68,6 @@
                 <i class="bx bx-dots-vertical-rounded fs-5"></i>
               </button>
 
-              <!-- align to end -->
               <ul class="dropdown-menu dropdown-menu-end"
                   [attr.aria-labelledby]="'actionsMenu' + i"
                   (click)="$event.stopPropagation()">
@@ -91,7 +86,6 @@
           </td>
         </tr>
 
-        <!-- empty state -->
         <tr *ngIf="!paginatedAdoptions?.length">
           <td colspan="6" class="text-center text-muted py-4">
             No adoptions found.
@@ -100,7 +94,6 @@
       </tbody>
     </table>
 
-    <!-- Pagination -->
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center m-3 gap-2">
       <div class="d-flex align-items-center">
         <label for="rowsPerPage" class="mb-0">Rows per page:</label>
@@ -142,6 +135,7 @@
         <h5 class="modal-title" id="editModalLabel">Edit Adoption</h5>
         <button type="button" class="btn-close" (click)="closeEditForm()"></button>
       </div>
+
       <div class="modal-body">
         <form [formGroup]="editAdoptionForm">
           <div class="row g-3">
@@ -150,25 +144,86 @@
               <label for="petName">Pet Name <span class="text-danger">*</span></label>
             </div>
 
-            <!-- bind to 'species' -->
             <div class="form-floating col-md-6 col-12">
               <select class="form-select" id="species" formControlName="species">
                 <option value="" disabled>Select Pet Type</option>
                 <option value="dog">Dog</option>
                 <option value="cat">Cat</option>
+                <option value="bird">Bird</option>
+                <option value="fish">Fish</option>
+                <option value="rabbit">Rabbit</option>
                 <option value="other">Other</option>
               </select>
               <label for="species">Pet Type <span class="text-danger">*</span></label>
             </div>
 
-            <div class="form-floating col-md-6 col-12">
-              <input type="number" class="form-control" id="age" formControlName="age" placeholder="Age" min="0" />
-              <label for="age">Age <span class="text-danger">*</span></label>
+            <!-- Age split -->
+            <div class="col-12">
+              <div class="row g-2">
+                <div class="form-floating col-6">
+                  <input type="number" class="form-control" id="ageYearsEdit" formControlName="ageYears" min="0" />
+                  <label for="ageYearsEdit">Age (Years)</label>
+                </div>
+                <div class="form-floating col-6">
+                  <input type="number" class="form-control" id="ageMonthsEdit" formControlName="ageMonths" min="0" max="11" />
+                  <label for="ageMonthsEdit">Age (Months)</label>
+                </div>
+              </div>
             </div>
 
-            <div class="form-floating col-md-6 col-12">
+            <div class="form-floating col-12">
               <textarea class="form-control" id="description" formControlName="description" placeholder="Description"></textarea>
               <label for="description">Description</label>
+            </div>
+          </div>
+
+          <!-- Current Photos -->
+          <div class="mt-3">
+            <label class="form-label fw-semibold">Current Photos</label>
+            <div class="d-flex flex-wrap gap-2">
+              <div class="position-relative" *ngFor="let url of (selectedAdoption?.photos || []); let idx = index">
+                <img [src]="url"
+                     alt="pet photo"
+                     class="rounded border"
+                     style="width: 96px; height: 96px; object-fit: cover;" />
+                <button type="button"
+                        class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle badge rounded-pill"
+                        style="line-height: 1;"
+                        aria-label="Remove photo"
+                        (click)="removeExistingPhoto(url)">
+                  &times;
+                </button>
+              </div>
+              <div *ngIf="!(selectedAdoption?.photos?.length)">
+                <span class="text-muted">No photos uploaded yet.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add New Photos -->
+          <div class="mt-3">
+            <label for="editNewPhotos" class="form-label fw-semibold">Add New Photos</label>
+            <input id="editNewPhotos"
+                   type="file"
+                   class="form-control"
+                   (change)="onEditFilesSelected($event)"
+                   multiple
+                   accept="image/*" />
+
+            <div class="d-flex flex-wrap gap-2 mt-2" *ngIf="editNewFiles?.length">
+              <div class="position-relative" *ngFor="let f of editNewFiles; let i = index">
+                <img [src]="previewFile(f)"
+                     alt="new photo"
+                     class="rounded border"
+                     style="width: 96px; height: 96px; object-fit: cover;" />
+                <button type="button"
+                        class="btn btn-sm btn-secondary position-absolute top-0 end-0 translate-middle badge rounded-pill"
+                        style="line-height: 1;"
+                        aria-label="Remove new photo"
+                        (click)="removeNewFile(i)">
+                  &times;
+                </button>
+              </div>
             </div>
           </div>
         </form>
