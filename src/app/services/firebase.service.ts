@@ -6,6 +6,7 @@ import {
   sendPasswordResetEmail as fbSendPasswordResetEmail,
   confirmPasswordReset as fbConfirmPasswordReset,
   updatePassword as fbUpdatePassword,
+  User
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -20,16 +21,15 @@ import {
   where,
   getCountFromServer,
   serverTimestamp,
+  CollectionReference,
+  DocumentReference
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export type PetStatus = 'Pending' | 'Active' | 'Inactive' | 'Adopted';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class FirebaseService {
-
   private firebaseConfig = {
     apiKey: 'AIzaSyB5b9mW2JUyiIW9GZMNt71tuc71zefomlA',
     authDomain: 'jeevjantoo-af3a1.firebaseapp.com',
@@ -43,38 +43,91 @@ export class FirebaseService {
   private auth: any;
   private storage: any;
 
+  // Optional: lets you unlock admin UI if admins/{uid} doc not seeded yet (dev)
+  private FALLBACK_ADMIN_UIDS = ['an34sdrlaNZRNYaG132yc40zmhL2'];
+
+  // Directory types that live under /directories/{type}/{docId}
+  private DIRECTORY_TYPES = new Set<string>([
+    'clinics',
+    'ngos',
+    'events',
+    'ambulance',
+    'boarding_spa',   // combined category
+    'boarding',       // keep both to be safe
+    'spa',
+    'abc',
+    'govt_helpline',
+    'feeding',
+    'medical_insurance'
+  ]);
+
   constructor() {
     const app = initializeApp(this.firebaseConfig);
     this.db = getFirestore(app);
     this.auth = getAuth(app);
-    this.storage = getStorage(app); // Initialize Firebase Storage
+    this.storage = getStorage(app);
+  }
+
+  // ------- helpers: refs that honor /directories/{type} layout -------
+  private colRef(name: string): CollectionReference {
+    if (this.DIRECTORY_TYPES.has(name)) {
+      return collection(this.db, 'directories', name);
+    }
+    return collection(this.db, name);
+  }
+  private docRef(name: string, id: string): DocumentReference {
+    if (this.DIRECTORY_TYPES.has(name)) {
+      return doc(this.db, 'directories', name, id);
+    }
+    return doc(this.db, name, id);
+  }
+  private currentUidOrThrow(): string {
+    const u: User | null = this.auth.currentUser;
+    if (!u) throw new Error('No authenticated user found.');
+    return u.uid;
   }
 
   // ---------------- Admin Auth ----------------
   async signInAdmin(email: string, password: string): Promise<boolean> {
     try {
-      // Verify admin presence in Firestore
-      const q = query(collection(this.db, 'admins'), where('email', '==', email));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) throw new Error('User not registered');
+      // 1) Sign-in first (Auth does not depend on Firestore rules)
+      const cred = await signInWithEmailAndPassword(this.auth, email, password);
+      const uid = cred.user.uid;
 
-      // Firebase Auth sign-in
-      await signInWithEmailAndPassword(this.auth, email, password);
-      const sessionExpiry = Date.now() + 8 * 60 * 60 * 1000; // 8 hours
+      // 2) Verify admin AFTER sign-in (admins/{uid} doc)
+      const adminSnap = await getDoc(doc(this.db, 'admins', uid));
+      const isAdmin = adminSnap.exists() || this.FALLBACK_ADMIN_UIDS.includes(uid);
+      if (!isAdmin) {
+        await this.auth.signOut();
+        throw new Error(`Not an admin. Ask owner to add your UID at /admins/${uid}`);
+      }
+
+      // 3) Session state (8-hour session window)
+      const sessionExpiry = Date.now() + 8 * 60 * 60 * 1000;
       localStorage.setItem('userEmail', email);
       localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('sessionExpiry', sessionExpiry.toString());
+      localStorage.setItem('sessionExpiry', String(sessionExpiry));
       return true;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.message.toLowerCase().includes('password')) throw new Error('Incorrect password');
-        throw new Error(error.message);
-      }
-      throw new Error('An unexpected error occurred during admin sign-in.');
+    } catch (err: any) {
+      throw new Error(err?.message || 'Admin sign-in failed');
     }
   }
 
-  // Keep your public method names but call the aliased SDK functions
+  // Seed your own admin doc quickly (Console writes bypass rules, but this helps in dev)
+  async ensureMyAdminDoc() {
+    const uid = this.currentUidOrThrow();
+    const ref = doc(this.db, 'admins', uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        email: this.auth.currentUser?.email || '',
+        createdAt: serverTimestamp()
+      });
+    }
+    return uid;
+  }
+
+  // ---------------- Password helpers ----------------
   async sendPasswordResetEmail(email: string) {
     try {
       await fbSendPasswordResetEmail(this.auth, email, {
@@ -107,11 +160,11 @@ export class FirebaseService {
     }
   }
 
-  // ---------------- Generic Firestore CRUD ----------------
+  // ---------------- Generic Firestore CRUD (honors directories path) ----------------
   async addInformation(docID: string, data: any, collectionName: string): Promise<any> {
     try {
-      const docRef = doc(this.db, collectionName, docID);
-      await setDoc(docRef, data);
+      const ref = this.docRef(collectionName, docID);
+      await setDoc(ref, data);
       return { id: docID, ...data };
     } catch (error) {
       console.error('Error adding data:', error);
@@ -120,21 +173,21 @@ export class FirebaseService {
   }
 
   async getInformation(collectionName: string): Promise<any[]> {
-    const querySnapshot = await getDocs(collection(this.db, collectionName));
-    return querySnapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(this.colRef(collectionName));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   }
 
   async getDocument(collectionName: string, id: string) {
-    const ref = doc(this.db, collectionName, id);
+    const ref = this.docRef(collectionName, id);
     const snap = await getDoc(ref);
     return snap.exists() ? { id: snap.id, ...snap.data() } : null;
   }
 
   async editInformation(collectionName: string, id: string, data: any): Promise<void> {
     try {
-      const docRef = doc(this.db, collectionName, id);
-      await updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
-      console.log(`Document with ID: ${id} updated with new data`);
+      const ref = this.docRef(collectionName, id);
+      await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+      console.log(`Document with ID: ${id} updated`);
     } catch (error) {
       console.error('Error updating document: ', error);
       throw new Error('Error updating document');
@@ -143,9 +196,9 @@ export class FirebaseService {
 
   async deleteInformation(collectionName: string, id: string): Promise<void> {
     try {
-      const docRef = doc(this.db, collectionName, id);
-      await deleteDoc(docRef);
-      console.log(`Document with ID ${id} deleted successfully.`);
+      const ref = this.docRef(collectionName, id);
+      await deleteDoc(ref);
+      console.log(`Document with ID ${id} deleted`);
     } catch (error) {
       console.error(`Error deleting document with ID ${id}:`, error);
       throw error;
@@ -154,8 +207,7 @@ export class FirebaseService {
 
   async getCategoryCount(collectionName: string): Promise<number> {
     try {
-      const categoryRef = collection(this.db, collectionName);
-      const countSnapshot = await getCountFromServer(categoryRef);
+      const countSnapshot = await getCountFromServer(this.colRef(collectionName));
       return countSnapshot.data().count;
     } catch (error) {
       console.error('Error getting count for ' + collectionName + ':', error);
@@ -172,32 +224,37 @@ export class FirebaseService {
 
   // ---------------- Adoption (ADMIN) ----------------
   /**
-   * Create/seed into the SAME collection the user app reads:
-   *   - collection: 'pet-adoption'
-   *   - status: 'Active' (title case)
-   *   - 'id' field mirrors the Firestore document id
+   * Writes to 'pet-adoption' with required rule fields + uploads to adoption/{uid}/...
    */
   async addAdoption(data: any, file?: File): Promise<any> {
     try {
+      const adminUid = this.currentUidOrThrow();
+
+      const safeName = (data?.petName || 'pet').toString().replace(/\s+/g, '_');
+      const id = `${safeName}_${Date.now()}`;
+
       let photoURL = '';
       if (file) {
-        const safeName = (data?.petName || 'pet').toString().replace(/\s+/g, '_');
-        const path = `pet-photos/${Date.now()}_${safeName}_${file.name}`;
+        // matches storage.rules: /adoption/{uid}/{path=**}
+        const path = `adoption/${adminUid}/${id}/${file.name}`;
         photoURL = await this.uploadFile(path, file);
       }
 
-      const id = `${(data?.petName || 'pet').toString().replace(/\s+/g, '_')}_${Date.now()}`;
       const adoptionData = {
         ...data,
         id,
-        status: 'Active' as PetStatus,
+        status: 'Active' as PetStatus, // admin can publish directly
         photos: photoURL ? [photoURL] : (Array.isArray(data?.photos) ? data.photos : []),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+
+        // REQUIRED by firestore.rules (pet-adoption)
+        submitterUid: adminUid,
+        ownerUid: adminUid
       };
 
-      const docRef = doc(this.db, 'pet-adoption', id);
-      await setDoc(docRef, adoptionData);
+      const ref = doc(this.db, 'pet-adoption', id);
+      await setDoc(ref, adoptionData);
       console.log('Adoption added with ID:', id);
       return { id, ...adoptionData };
     } catch (error) {
@@ -207,16 +264,12 @@ export class FirebaseService {
   }
 
   // ---------------- Status (generic) ----------------
-  /**
-   * Accepts legacy string or PetStatus. Normalizes common variants.
-   * This removes TS2345 in components passing string.
-   */
   async updateStatus(collectionName: string, id: string, status: PetStatus | string): Promise<void> {
     try {
       const normalized = this.normalizeStatus(status);
-      const docRef = doc(this.db, collectionName, id);
-      await updateDoc(docRef, { status: normalized, updatedAt: serverTimestamp() });
-      console.log(`Status of document with ID: ${id} updated to ${normalized}`);
+      const ref = this.docRef(collectionName, id);
+      await updateDoc(ref, { status: normalized, updatedAt: serverTimestamp() });
+      console.log(`Status of document ${id} updated to ${normalized}`);
     } catch (error) {
       console.error('Error updating status: ', error);
       throw new Error('Error updating status');
@@ -230,6 +283,6 @@ export class FirebaseService {
     if (v === 'inactive') return 'Inactive';
     if (v === 'pending') return 'Pending';
     if (v === 'adopted') return 'Adopted';
-    return val; // keep as-is for other modules/collections
+    return val;
   }
 }
