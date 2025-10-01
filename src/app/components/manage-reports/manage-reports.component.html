@@ -1,0 +1,199 @@
+<div class="card m-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="card-header">Manage Reports</h5>
+
+    <div class="d-flex align-items-center gap-2 m-3">
+      <!-- quick filters like your tabs -->
+      <div class="btn-group" role="group" aria-label="Report tabs">
+        <button class="btn" 
+                [ngClass]="{ 'btn-primary': tab==='open', 'btn-outline-primary': tab!=='open' }"
+                (click)="changeTab('open')">
+          Open <span class="badge bg-light text-dark ms-1">{{ counts.open }}</span>
+        </button>
+        <button class="btn"
+                [ngClass]="{ 'btn-primary': tab==='resolved', 'btn-outline-primary': tab!=='resolved' }"
+                (click)="changeTab('resolved')">
+          Resolved <span class="badge bg-light text-dark ms-1">{{ counts.resolved }}</span>
+        </button>
+        <button class="btn"
+                [ngClass]="{ 'btn-primary': tab==='all', 'btn-outline-primary': tab!=='all' }"
+                (click)="changeTab('all')">
+          All <span class="badge bg-light text-dark ms-1">{{ counts.all }}</span>
+        </button>
+      </div>
+
+      <!-- search (client-side for reason/collection/id) -->
+      <div class="input-group">
+        <span class="input-group-text"><i class="bx bx-search"></i></span>
+        <input type="text"
+               class="form-control"
+               placeholder="Search reason / collection / target id…"
+               [(ngModel)]="search"
+               (input)="applyClientFilter()"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive text-nowrap" *ngIf="!loading; else loadingTpl">
+    <table class="table table-hover table-bordered align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th class="fw-bold text-black">When</th>
+          <th class="fw-bold text-black">Collection</th>
+          <th class="fw-bold text-black">Target ID</th>
+          <th class="fw-bold text-black">Reason</th>
+          <th class="fw-bold text-black">Reported By</th>
+          <th class="fw-bold text-black">Status</th>
+          <th class="fw-bold text-black text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let r of paginatedRows">
+          <td>
+            <ng-container *ngIf="r.createdAt?.toDate; else plainDate">
+              {{ r.createdAt.toDate() | date:'short' }}
+            </ng-container>
+            <ng-template #plainDate>{{ r.createdAt | date:'short' }}</ng-template>
+          </td>
+          <td><code>{{ r.collection }}</code></td>
+          <td class="text-break"><code>{{ r.id }}</code></td>
+          <td class="text-break">{{ r.reason }}</td>
+          <td><code>{{ r.userId }}</code></td>
+          <td>
+            <span class="badge"
+                  [ngClass]="{
+                    'bg-label-success': r.status === 'resolved',
+                    'bg-label-warning': r.status !== 'resolved'
+                  }">
+              {{ r.status || 'open' }}
+            </span>
+          </td>
+
+          <td class="text-center actions-cell">
+  <div class="dropdown position-static">
+    <button
+      class="btn p-0"
+      type="button"
+      data-bs-toggle="dropdown"
+      data-bs-display="static"
+      aria-expanded="false"
+      title="Actions"
+    >
+      <i class="bx bx-dots-vertical-rounded fs-4"></i>
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end shadow">
+      <li>
+        <a class="dropdown-item" href="javascript:void(0);" (click)="copyId(r)">
+          <i class="bx bx-copy me-2"></i> Copy target id
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="javascript:void(0);" (click)="hideTarget(r)">
+          <i class="bx bx-low-vision me-2"></i> Hide target
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="javascript:void(0);" (click)="openResolveModal(r)">
+          <i class="bx bx-check-circle me-2 text-success"></i> Resolve
+        </a>
+      </li>
+
+      <li><hr class="dropdown-divider" /></li>
+
+      <li>
+        <a class="dropdown-item text-danger" href="javascript:void(0);" (click)="openDeleteModal(r)">
+          <i class="bx bx-trash me-2"></i> Delete report
+        </a>
+      </li>
+    </ul>
+  </div>
+</td>
+
+        </tr>
+
+        <tr *ngIf="paginatedRows.length === 0">
+          <td colspan="7" class="text-center text-muted py-4">No reports found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingTpl>
+    <div class="m-4 alert alert-info d-flex align-items-center gap-2">
+      <span class="spinner-border spinner-border-sm"></span> Loading…
+    </div>
+  </ng-template>
+
+  <!-- Pagination controls (same pattern as Insurance) -->
+  <div class="pagination-controls" *ngIf="!loading">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center m-3 gap-2">
+      <div class="d-flex align-items-center">
+        <label class="me-2">Rows per page:</label>
+        <select class="form-select w-auto"
+                [(ngModel)]="rowsPerPage"
+                (change)="changeRowsPerPage(rowsPerPage)">
+          <option *ngFor="let option of rowsPerPageOptions" [value]="option">{{ option }}</option>
+        </select>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-secondary me-2"
+                [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="btn btn-outline-secondary ms-2"
+                [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Resolve Modal -->
+<div *ngIf="toResolve" class="modal fade show d-block" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Resolve report</h5>
+        <button type="button" class="btn-close" (click)="closeResolveModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2 small text-muted">
+          Target <code>{{ toResolve.id }}</code> ({{ toResolve.collection }})
+        </div>
+        <label class="form-label">Resolution notes</label>
+        <textarea class="form-control" rows="3" [(ngModel)]="note" placeholder="Optional…"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeResolveModal()">Cancel</button>
+        <button class="btn btn-success" (click)="markResolved(toResolve, 'fixed')">Resolve</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div *ngIf="toDelete" class="modal fade show d-block" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">Delete report</h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this report?<br/>
+        <small class="text-muted">Target: <code>{{ toDelete.id }}</code> ({{ toDelete.collection }})</small>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

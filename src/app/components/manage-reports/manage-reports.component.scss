@@ -1,0 +1,10 @@
+.actions-cell {
+  white-space: nowrap;      /* keep the button/menu tidy */
+  width: 1%;
+}
+.actions-cell .dropdown-menu {
+  min-width: 220px;         /* readable width */
+}
+.table td, .table th {
+  vertical-align: middle;
+}

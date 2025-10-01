@@ -345,6 +345,38 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Reports -->
+                <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-4">
+                    <div class="card" style="background-color: #EDE7FF;; overflow: hidden;">
+                        <div class="card-body" style="position: relative;">
+                            <div
+                                style="background-color: #CBB2FE; border-radius: 100%; width: 200px; height: 200px; position: absolute; top: -120px; left: 50px;">
+                            </div>
+                            <div class="card-title d-flex align-items-start justify-content-between mb-5">
+                                <div class="avatar flex-shrink-0">
+                                    <img src="custom_assets/assets/img/icons/unicons/reports.svg" alt="reports"
+                                        class="rounded" />
+                                </div>
+                                <div class="avatar d-flex align-items-end flex-column justify-content-center">
+                                    <h3 class="card-title mb-2">{{ reportsOpenCount }}</h3>
+                                    <span class="fw-semibold d-block mb-1">Reports</span>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <a class="btn p-1 rounded-4 border-2 border-dark bg-white"
+                                    [routerLink]="['/manage-reports']" style="font-size: 12px;">
+                                    Review
+                                    <img style="width: 15px; height: 15px;"
+                                        src="custom_assets/assets/img/icons/unicons/add.png" alt="go" class="rounded" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
             </div>
         </div>
         <!--/ Facts and Figures -->

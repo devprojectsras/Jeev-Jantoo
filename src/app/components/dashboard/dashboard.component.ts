@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { LoadCustomScriptService } from '../../services/load-custom-script.service';
 import { FirebaseService } from '../../services/firebase.service';
 import { RouterModule } from '@angular/router';
+import { getFirestore, collection, query, where, getCountFromServer } from 'firebase/firestore';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +24,9 @@ export class DashboardComponent implements OnInit {
   petAdoptionCount = 0;
   medicalInsuranceCount = 0;
   feedingCount = 0; 
+  reportsOpenCount = 0;
+reportsTotalCount = 0;
+
 
   constructor(
     private scriptService: LoadCustomScriptService,
@@ -103,4 +108,15 @@ export class DashboardComponent implements OnInit {
       console.error('Error fetching Feeding count:', error);
     }
   }
+  async loadReportCounts() {
+  const db = getFirestore();
+  const reportsCol = collection(db, 'reports');
+
+  const totalSnap = await getCountFromServer(reportsCol);
+  this.reportsTotalCount = totalSnap.data().count;
+
+  const openSnap = await getCountFromServer(query(reportsCol, where('status', '==', 'open')));
+  this.reportsOpenCount = openSnap.data().count;
+}
+
 }

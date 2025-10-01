@@ -69,18 +69,25 @@ export class FirebaseService {
   }
 
   // ------- helpers: refs that honor /directories/{type} layout -------
+  // private colRef(name: string): CollectionReference {
+  //   if (this.DIRECTORY_TYPES.has(name)) {
+  //     return collection(this.db, 'directories', name);
+  //   }
+  //   return collection(this.db, name);
+  // }
+  // private docRef(name: string, id: string): DocumentReference {
+  //   if (this.DIRECTORY_TYPES.has(name)) {
+  //     return doc(this.db, 'directories', name, id);
+  //   }
+  //   return doc(this.db, name, id);
+  // }
+
   private colRef(name: string): CollectionReference {
-    if (this.DIRECTORY_TYPES.has(name)) {
-      return collection(this.db, 'directories', name);
-    }
-    return collection(this.db, name);
-  }
-  private docRef(name: string, id: string): DocumentReference {
-    if (this.DIRECTORY_TYPES.has(name)) {
-      return doc(this.db, 'directories', name, id);
-    }
-    return doc(this.db, name, id);
-  }
+  return collection(this.db, name);
+}
+private docRef(name: string, id: string): DocumentReference {
+  return doc(this.db, name, id);
+}
   private currentUidOrThrow(): string {
     const u: User | null = this.auth.currentUser;
     if (!u) throw new Error('No authenticated user found.');

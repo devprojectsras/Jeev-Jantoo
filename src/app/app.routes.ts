@@ -30,7 +30,7 @@ import { ManageMedicalInsuranceComponent } from './components/Insurance/manage-m
 import { AddNewMedicalInsuranceComponent } from './components/Insurance/add-new-medical-insurance/add-new-medical-insurance.component';
 import { AddNewFeedingComponent } from './components/food/add-new-food/add-new-food.component';
 import { ManageFoodComponent } from './components/food/manage-food/manage-food.component';
-
+import { ManageReportsComponent } from './components/manage-reports/manage-reports.component';
 
 export const routes: Routes = [
   {
@@ -324,6 +324,12 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+  path: 'manage-reports',
+  component: SecondaryComponent,
+  canActivate: [authGuard],
+  children: [{ path: '', component: ManageReportsComponent }],
+},
   {
     path: 'reset-password',
     component: ResetPasswordComponent,
