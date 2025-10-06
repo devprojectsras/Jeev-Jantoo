@@ -1,5 +1,7 @@
 {
   "name": "Jeev-Jantoo",
-  "type": "angular",
-  "integrations": {}
+  "integrations": {
+    "angular": {}
+  },
+  "type": "angular"
 }

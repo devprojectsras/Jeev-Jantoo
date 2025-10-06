@@ -19,6 +19,8 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
+    "@ionic/angular": "^8.7.4",
+    "@ionic/angular-toolkit": "^12.3.0",
     "@popperjs/core": "^2.11.8",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",

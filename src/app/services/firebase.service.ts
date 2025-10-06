@@ -270,6 +270,43 @@ private docRef(name: string, id: string): DocumentReference {
     }
   }
 
+  
+  // ---------------- Report Entry ----------------
+  async reportEntry(collectionName: string, docId: string, reason: string): Promise<void> {
+    try {
+      const user = this.currentUidOrThrow();
+      const reportId = `${collectionName}_${docId}_${user}`;
+      const reportRef = doc(this.db, 'reports', reportId);
+      
+      // Check for existing report to prevent duplicates
+      const existingReport = await getDoc(reportRef);
+      if (existingReport.exists()) {
+        throw new Error('ALREADY_EXISTS');
+      }
+
+      const reportData = {
+        collection: collectionName,
+        id: docId,
+        reason: reason || 'Incorrect information',
+        userId: user,
+        status: 'open',
+        createdAt: serverTimestamp()
+      };
+
+      await setDoc(reportRef, reportData);
+      console.log(`Report created with ID: ${reportId}`);
+    } catch (error: any) {
+      if (error.message === 'ALREADY_EXISTS') {
+        throw new Error('ALREADY_EXISTS');
+      }
+      if (error.message === 'auth/required') {
+        throw new Error('auth/required');
+      }
+      console.error('Error creating report:', error);
+      throw new Error(error.code || 'Could not submit report');
+    }
+  }
+
   // ---------------- Status (generic) ----------------
   async updateStatus(collectionName: string, id: string, status: PetStatus | string): Promise<void> {
     try {

@@ -51,10 +51,14 @@
       <tbody>
         <tr *ngFor="let r of paginatedRows">
           <td>
-            <ng-container *ngIf="r.createdAt?.toDate; else plainDate">
+            <!-- <ng-container *ngIf="r.createdAt?.toDate; else plainDate">
               {{ r.createdAt.toDate() | date:'short' }}
             </ng-container>
-            <ng-template #plainDate>{{ r.createdAt | date:'short' }}</ng-template>
+            <ng-template #plainDate>{{ r.createdAt | date:'short' }}</ng-template> -->
+            <ng-container *ngIf="r.createdAt?.toDate; else plainDate">
+          <td>{{ r.createdAt?.toDate() | date:'short' }}</td>
+          </ng-container>
+          <ng-template #plainDate>{{ r.createdAt?.toDate() | date:'short' }}</ng-template>
           </td>
           <td><code>{{ r.collection }}</code></td>
           <td class="text-break"><code>{{ r.id }}</code></td>
